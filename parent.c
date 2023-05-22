@@ -2,15 +2,11 @@
 #include "functions.h"
 #include "constants.h"
 
-void readFile();
+char*** readFile();
 
 int main(int argc, char **argv)
-{
-    printf("gd");
-    
+{   
     char*** output = readFile();
-
-
 
 
 }
@@ -18,8 +14,8 @@ int main(int argc, char **argv)
 // Function to read the file sender.txt
 char*** readFile() {
 
-
-    if ( (FILE* file = fopen("sender.txt", "r")) == NULL) {
+    FILE* file = fopen("sender.txt", "r");
+    if ( file == NULL) {
         printf("Failed to open the file.\n");
         return;
     }
