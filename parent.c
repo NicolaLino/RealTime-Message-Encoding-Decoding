@@ -2,32 +2,40 @@
 #include "functions.h"
 #include "constants.h"
 
+int max_columns = 0;
+int rows = 0;
+
 char*** readFile();
 
 int main(int argc, char **argv)
-{   
+{
     char*** output = readFile();
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < max_columns; j++) {
+            printf("%s\t", output[i][j]);
+        }
+        printf("\n");
+    }
+    
 
-
+    return 0;
 }
 
 // Function to read the file sender.txt
-char*** readFile() {
-
+char*** readFile()
+{
     FILE* file = fopen("sender.txt", "r");
-    if ( file == NULL) {
+    if (file == NULL) {
         printf("Failed to open the file.\n");
-        return;
+        exit(-1);
     }
 
     char columns[MAX_LENGTH][MAX_LENGTH];
     char line[MAX_LENGTH];
-    int max_columns = 0;
-    int rows = 0;
+    
 
     // First loop to determine the maximum number of columns and rows
     while (fgets(line, sizeof(line), file)) {
-    				
         int column_count = 0;
         char* token = strtok(line, " ");
 
@@ -39,37 +47,46 @@ char*** readFile() {
         if (column_count >= max_columns) {
             max_columns = column_count;
         }
-        
-      rows++;
-        
+
+        rows++;
     }
 
     printf("Max columns: %d\n", max_columns);
-    printf("Rows are: %d rows\n", rows);
+    printf("Rows: %d\n", rows);
 
     // Reset the file pointer
     fseek(file, 0, SEEK_SET);
 
     // To store the output
-    char output[rows][max_columns][MAX_LENGTH];
+    char*** output = (char***)malloc(rows * sizeof(char**));
+    for (int i = 0; i < rows; i++) {
+        output[i] = (char**)malloc(max_columns * sizeof(char*));
+        for (int j = 0; j < max_columns; j++) {
+            output[i][j] = (char*)malloc(MAX_LENGTH * sizeof(char));
+        }
+    }
+
     int row_count = 0;
-    
+
     // Store each word for its row and column
     while (fgets(line, sizeof(line), file)) {
-    
-    
-    	for (int i = 0; i < MAX_LENGTH; i++){
-    		if(line[i] == '\n')
-    			line[i] = ' ';
- 	
-    	}
-    
-    		
+        int len = strlen(line);
+        if (len > 0 && line[len - 1] == '\n') {
+            line[len - 1] = '0';
+            line[len - 2] = ' ';
+        }
+        printf("%s\n", line);
+
         int column_count = 0;
         char* token = strtok(line, " ");
 
         while (token != NULL) {
-            strcpy(output[row_count][column_count], token);
+            if (strcmp(token, "0") == 0) {
+                strcpy(output[row_count][column_count], "Alright");
+            }
+            else {
+                strcpy(output[row_count][column_count], token);
+            }
             token = strtok(NULL, " ");
             column_count++;
         }
@@ -78,25 +95,21 @@ char*** readFile() {
             strcpy(output[row_count][column_count], "Alright");
             column_count++;
         }
-        
+
         row_count++;
- 
-	}
-	
-	// Close the file
-   	 fclose(file);
-		
-		
-	for (int i = 0; i < rows; i++) {
-        	for (int j = 0; j < max_columns; j++) {
-          	  printf("%s\t", output[i][j]);
-        }
-        printf("\n");
     }
 
+    // Close the file
+    fclose(file);
+
+    // for (int i = 0; i < rows; i++) {
+    //     for (int j = 0; j < max_columns; j++) {
+    //         printf("%s\t", output[i][j]);
+    //     }
+    //     printf("\n");
+    // }
+
     return output;
-
-
 }
 
 
@@ -106,8 +119,8 @@ char*** readFile() {
 parent process create these:
 
 single sender process: 
-1) gets the message from an input file (e.g. sender.txt) that contains multiple lines
-2) split the input file by column based on the blank character between words
+1) gets the message from an input file (e.g. sender.txt) that contains multiple lines -- DONE
+2) split the input file by column based on the blank character between words -- DONE
 3) should create as many children processes as needed depending on the number of columns in the file
 4) each child process, a column message must be sent containing all the words in that column.
 5) The columns should be of equal size.
