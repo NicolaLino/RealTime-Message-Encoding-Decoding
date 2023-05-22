@@ -2,7 +2,7 @@
 *.d
 *.txt
 .vscode
-
+parent
 
 # Object files
 *.o
