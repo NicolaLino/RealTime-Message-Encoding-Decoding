@@ -2,10 +2,110 @@
 #include "functions.h"
 #include "constants.h"
 
+void readFile();
+
 int main(int argc, char **argv)
 {
+    printf("gd");
+    
+    char*** output = readFile();
+
+
+
 
 }
+
+// Function to read the file sender.txt
+char*** readFile() {
+
+
+    if ( (FILE* file = fopen("sender.txt", "r")) == NULL) {
+        printf("Failed to open the file.\n");
+        return;
+    }
+
+    char columns[MAX_LENGTH][MAX_LENGTH];
+    char line[MAX_LENGTH];
+    int max_columns = 0;
+    int rows = 0;
+
+    // First loop to determine the maximum number of columns and rows
+    while (fgets(line, sizeof(line), file)) {
+    				
+        int column_count = 0;
+        char* token = strtok(line, " ");
+
+        while (token != NULL) {
+            token = strtok(NULL, " ");
+            column_count++;
+        }
+
+        if (column_count >= max_columns) {
+            max_columns = column_count;
+        }
+        
+      rows++;
+        
+    }
+
+    printf("Max columns: %d\n", max_columns);
+    printf("Rows are: %d rows\n", rows);
+
+    // Reset the file pointer
+    fseek(file, 0, SEEK_SET);
+
+    // To store the output
+    char output[rows][max_columns][MAX_LENGTH];
+    int row_count = 0;
+    
+    // Store each word for its row and column
+    while (fgets(line, sizeof(line), file)) {
+    
+    
+    	for (int i = 0; i < MAX_LENGTH; i++){
+    		if(line[i] == '\n')
+    			line[i] = ' ';
+ 	
+    	}
+    
+    		
+        int column_count = 0;
+        char* token = strtok(line, " ");
+
+        while (token != NULL) {
+            strcpy(output[row_count][column_count], token);
+            token = strtok(NULL, " ");
+            column_count++;
+        }
+
+        while (column_count < max_columns) {
+            strcpy(output[row_count][column_count], "Alright");
+            column_count++;
+        }
+        
+        row_count++;
+ 
+	}
+	
+	// Close the file
+   	 fclose(file);
+		
+		
+	for (int i = 0; i < rows; i++) {
+        	for (int j = 0; j < max_columns; j++) {
+          	  printf("%s\t", output[i][j]);
+        }
+        printf("\n");
+    }
+
+    return output;
+
+
+}
+
+
+
+
 /*
 parent process create these:
 
