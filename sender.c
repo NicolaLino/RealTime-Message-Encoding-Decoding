@@ -8,7 +8,7 @@ pid_t pid;
 
 // Define the message structure
 struct message {
-    long type;              // Message type
+    long type;            // Message type
     char text[MAX_MSG_SIZE];  // Message data
 };
 
@@ -26,6 +26,9 @@ int main(int argc, char **argv) // sender process
         perror("msgget");
         exit(-1);
     }
+    char keyString[20];
+    sprintf(keyString, "%d", key);
+
 
     
     for (int i = 0; i < max_columns; i++) // create sender children
@@ -40,47 +43,29 @@ int main(int argc, char **argv) // sender process
         
         else if (pid == 0) // Code executed in child process
         {
-            execl("./senderChild", "senderChild", NULL);
+            execl("./senderChild", "senderChild",keyString, NULL);
             break;
         } 
         else // Sender process
         {
-            //senderChildren[i] = pid;    // PIDs are saved to send each coulmn to each child process
-            printf("pid is %d\n",pid);
-
-            // Compose the message
             struct message msg;
-            msg.type = (long)pid;
-            printf("type is %ld\n", msg.type);
+            msg.type = (long)pid;            
+            char temp [MAX_MSG_SIZE] = "";
+            for (int j=0; j<rows; j++){
+                strcat(temp, output[j][i]);
+                strcat(temp, " ");
+            }
+            strcpy(msg.text, temp);
+            printf("Column %d: %s\n",i, msg.text);
             
-
-            //Rami 
-
-            // char temp [MAX_MSG_SIZE] = "";
-            // for (int j=0; j<max_columns; j++){
-            //     strcat(temp, output[j][i]);
-            //     strcat(temp, " ");
-            //     printf("%s\n", temp);
-            // }
-            // printf("%s\n", temp);
-            // strcpy(msg.text, temp);
-            // printf("%s\n", msg.text);
-
-            //Rami
-
-           // snprintf(msg.text, sizeof(msg.text), );
-
-            // Send the message
-            // if (msgsnd(msgqid, &msg, sizeof(msg.mtext), 0) == -1) {
-            //     perror("msgsnd");
-            //     exit(EXIT_FAILURE);
-            // }
+            if (msgsnd(msgqid, &msg, sizeof(msg.text), 0) == -1) {
+                perror("msgsnd");
+                exit(-1);
+            }
             
 
         }
     }
-
-
 
     printf("\nEND");
 
