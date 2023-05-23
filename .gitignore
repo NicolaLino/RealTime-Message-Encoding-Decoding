@@ -2,6 +2,7 @@
 *.d
 .vscode
 parent
+aa.c
 
 # Object files
 *.o

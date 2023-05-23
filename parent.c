@@ -2,115 +2,31 @@
 #include "functions.h"
 #include "constants.h"
 
-int max_columns = 0;
-int rows = 0;
-
-char*** readFile();
-
 int main(int argc, char **argv)
 {
-    char*** output = readFile();
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < max_columns; j++) {
-            printf("%s\t", output[i][j]);
-        }
-        printf("\n");
-    }
-    
+    pid_t Sender = fork();
 
+    if (Sender == -1) {
+        perror("fork");
+        exit(-1);
+    } else if (Sender == 0) {
+        execl("./sender", "sender", NULL);
+    }
+
+
+
+
+    wait(NULL);
+    
     return 0;
 }
 
-// Function to read the file sender.txt
-char*** readFile()
-{
-    FILE* file = fopen("sender.txt", "r");
-    if (file == NULL) {
-        printf("Failed to open the file.\n");
-        exit(-1);
-    }
 
-    char columns[MAX_LENGTH][MAX_LENGTH];
-    char line[MAX_LENGTH];
+
+
+
+
     
-
-    // First loop to determine the maximum number of columns and rows
-    while (fgets(line, sizeof(line), file)) {
-        int column_count = 0;
-        char* token = strtok(line, " ");
-
-        while (token != NULL) {
-            token = strtok(NULL, " ");
-            column_count++;
-        }
-
-        if (column_count >= max_columns) {
-            max_columns = column_count;
-        }
-
-        rows++;
-    }
-
-    printf("Max columns: %d\n", max_columns);
-    printf("Rows: %d\n", rows);
-
-    // Reset the file pointer
-    fseek(file, 0, SEEK_SET);
-
-    // To store the output
-    char*** output = (char***)malloc(rows * sizeof(char**));
-    for (int i = 0; i < rows; i++) {
-        output[i] = (char**)malloc(max_columns * sizeof(char*));
-        for (int j = 0; j < max_columns; j++) {
-            output[i][j] = (char*)malloc(MAX_LENGTH * sizeof(char));
-        }
-    }
-
-    int row_count = 0;
-
-    // Store each word for its row and column
-    while (fgets(line, sizeof(line), file)) {
-        int len = strlen(line);
-        if (len > 0 && line[len - 1] == '\n') {
-            line[len - 1] = '0';
-            line[len - 2] = ' ';
-        }
-        printf("%s\n", line);
-
-        int column_count = 0;
-        char* token = strtok(line, " ");
-
-        while (token != NULL) {
-            if (strcmp(token, "0") == 0) {
-                strcpy(output[row_count][column_count], "Alright");
-            }
-            else {
-                strcpy(output[row_count][column_count], token);
-            }
-            token = strtok(NULL, " ");
-            column_count++;
-        }
-
-        while (column_count < max_columns) {
-            strcpy(output[row_count][column_count], "Alright");
-            column_count++;
-        }
-
-        row_count++;
-    }
-
-    // Close the file
-    fclose(file);
-
-    // for (int i = 0; i < rows; i++) {
-    //     for (int j = 0; j < max_columns; j++) {
-    //         printf("%s\t", output[i][j]);
-    //     }
-    //     printf("\n");
-    // }
-
-    return output;
-}
 
 
 
