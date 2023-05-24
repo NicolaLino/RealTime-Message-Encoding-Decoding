@@ -3,6 +3,8 @@
 .vscode
 parent
 aa.c
+sender
+senderChild
 
 # Object files
 *.o

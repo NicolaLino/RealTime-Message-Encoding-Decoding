@@ -54,6 +54,7 @@ int main(int argc, char **argv) // sender process
         else if (pid == 0) // Code executed in child process
         {
             sprintf(index, "%d", i);
+            //sleep(1);
             execl("./senderChild", "senderChild", keyString, sh_key, index, max_columns_send,  NULL);//msg_q, shmem, i, max_columns
             break;
         } 
@@ -88,7 +89,7 @@ int main(int argc, char **argv) // sender process
     int shmkey = atoi(sh_key);
     int shmid = open_shmem(shmkey);
 
-    char* shared_data = shmat(shmid, NULL, 0);
+    char* shared_data = (char *) shmat(shmid, NULL, 0);
     if (shared_data == (char *)(-1)) {
         perror("shmat");
         exit(1);
@@ -96,7 +97,7 @@ int main(int argc, char **argv) // sender process
     
 
     for (int i = 0 ; i < max_columns; i++){
-            char* message = shared_data + (i * 1024);
+            char* message = shared_data + (i * 100);
             printf("Message %d: %s\n", i, message);
 
     }
