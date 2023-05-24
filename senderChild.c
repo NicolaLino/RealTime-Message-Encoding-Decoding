@@ -19,7 +19,7 @@ int max_columns;
 
 int main(int argc, char **argv) // sender child process
 {
-
+    char* shared_data;
     validateInput(argc, argv);
     Index--;
     int shmid = open_shmem(shmkey);
@@ -42,26 +42,21 @@ int main(int argc, char **argv) // sender child process
 
 
     // Process the received message
-    printf("Child process %d received message: %s\n", getpid(), msg.text);
+   // printf("Child process %d received message: %s\n", getpid(), msg.text);
 
-    char* shared_data = shmat(shmid, NULL, 0);
+    shared_data = (char *) shmat(shmid, NULL, 0);
     if (shared_data == (char *)(-1)) {
         perror("shmat");
         exit(1);
     }
 
-    strcpy(shared_data + (Index * 1024), msg.text);
-    printf("String read from shared memory: %s\n", shared_data + (Index * 1024));
+    printf("Child process %d received message: %s\n", getpid(), msg.text);
+    strcpy(shared_data + (Index * 100), msg.text);
+    
+    
+    printf("String read from shared memory: %s\n", shared_data + (Index * 100));
 
   
-       /* for (int i = 0 ; i < max_columns; i++){
-            char* message = shared_data + (i * 1024);
-            printf("Message %d: %s\n", i, message);
-
-        }*/
-
-    //printf("String read from shared memory: %s\n", shared_data);
-
     return 0;
 }
 

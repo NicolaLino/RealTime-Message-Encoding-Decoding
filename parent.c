@@ -37,7 +37,7 @@ int createShmem(){
     key = ftok(".", 'R');
     int shmid;
 
-    if( (shmid = shmget(key, 1024, IPC_CREAT | 0666)) == -1){
+    if( (shmid = shmget(key, 100, IPC_CREAT | 0666)) == -1){
 
         perror("create shmget error\n");
         exit(-1);
