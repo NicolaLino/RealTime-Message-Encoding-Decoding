@@ -2,15 +2,25 @@
 #include "functions.h"
 #include "constants.h"
 
+key_t key;
+
+int createShmem();
+
+
 int main(int argc, char **argv)
 {
+
+    int shmid = createShmem();
+    char keyy[20];
     pid_t Sender = fork();
 
     if (Sender == -1) {
         perror("fork");
         exit(-1);
+
     } else if (Sender == 0) {
-        execl("./sender", "sender", NULL);
+        sprintf(keyy, "%d", key);
+        execl("./sender", "sender", keyy, NULL);
     }
 
 
@@ -22,7 +32,21 @@ int main(int argc, char **argv)
 }
 
 
+int createShmem(){
 
+    key = ftok(".", 'R');
+    int shmid;
+
+    if( (shmid = shmget(key, 1024, IPC_CREAT | 0666)) == -1){
+
+        perror("create shmget error\n");
+        exit(-1);
+
+    }
+
+    return shmid;
+
+}
 
 
 

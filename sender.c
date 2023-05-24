@@ -6,6 +6,8 @@ int max_columns = 0;
 int rows = 0;
 pid_t pid;
 
+int open_shmem(int);// put in header (repeated two times)
+
 // Define the message structure
 struct message {
     long type;            // Message type
@@ -16,8 +18,15 @@ char*** readFile();
 
 int main(int argc, char **argv) // sender process
 {
+    char keyString[20];
+    char index[3];
+    char max_columns_send[3];
     char*** output = readFile();
     //pid_t senderChildren[max_columns];
+
+    char *sh_key = argv[1];
+    //printf("%s\n", sh_key);
+    //fflush(stdout);
 
     // create message queue
     key_t key = ftok(".", 'm');
@@ -26,8 +35,9 @@ int main(int argc, char **argv) // sender process
         perror("msgget");
         exit(-1);
     }
-    char keyString[20];
+    
     sprintf(keyString, "%d", key);
+    sprintf(max_columns_send, "%d", max_columns);
 
 
     
@@ -43,7 +53,8 @@ int main(int argc, char **argv) // sender process
         
         else if (pid == 0) // Code executed in child process
         {
-            execl("./senderChild", "senderChild",keyString, NULL);
+            sprintf(index, "%d", i);
+            execl("./senderChild", "senderChild", keyString, sh_key, index, max_columns_send,  NULL);//msg_q, shmem, i, max_columns
             break;
         } 
         else // Sender process
@@ -73,6 +84,26 @@ int main(int argc, char **argv) // sender process
     for (int i = 0; i < max_columns; i++) {
         wait(NULL);
     }
+
+    int shmkey = atoi(sh_key);
+    int shmid = open_shmem(shmkey);
+
+    char* shared_data = shmat(shmid, NULL, 0);
+    if (shared_data == (char *)(-1)) {
+        perror("shmat");
+        exit(1);
+    }
+    
+
+    for (int i = 0 ; i < max_columns; i++){
+            char* message = shared_data + (i * 1024);
+            printf("Message %d: %s\n", i, message);
+
+    }
+
+
+
+
 
     return 0;
 }
@@ -166,4 +197,15 @@ char*** readFile()
     }
 
     return output;
+}
+
+
+int open_shmem(int key){
+
+    int shmid;
+	if((shmid=shmget(key,0,0))==-1){
+		perror("Error opening shared memory from Parent");
+		exit(-2);
+	}
+	return shmid;
 }
