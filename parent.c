@@ -5,46 +5,61 @@
 int max_columns = 0;
 int rows = 0;
 
-char*** readFile();
+char ***readFile();
+char ***encodeMessage(char ***output);
 
 int main(int argc, char **argv)
 {
-    char*** output = readFile();
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < max_columns; j++) {
+    char ***output = readFile();
+    char ***encodedOutput = encodeMessage(output);
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = 0; j < max_columns; j++)
+        {
             printf("%s\t", output[i][j]);
         }
         printf("\n");
     }
-    
+    printf("\n\n\n");
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = 0; j < max_columns; j++)
+        {
+            printf("%s\t", encodedOutput[i][j]);
+        }
+        printf("\n");
+    }
 
     return 0;
 }
 
 // Function to read the file sender.txt
-char*** readFile()
+char ***readFile()
 {
-    FILE* file = fopen("sender.txt", "r");
-    if (file == NULL) {
+    FILE *file = fopen("sender.txt", "r");
+    if (file == NULL)
+    {
         printf("Failed to open the file.\n");
         exit(-1);
     }
 
     char columns[MAX_LENGTH][MAX_LENGTH];
     char line[MAX_LENGTH];
-    
 
     // First loop to determine the maximum number of columns and rows
-    while (fgets(line, sizeof(line), file)) {
+    while (fgets(line, sizeof(line), file))
+    {
         int column_count = 0;
-        char* token = strtok(line, " ");
+        char *token = strtok(line, " ");
 
-        while (token != NULL) {
+        while (token != NULL)
+        {
             token = strtok(NULL, " ");
             column_count++;
         }
 
-        if (column_count >= max_columns) {
+        if (column_count >= max_columns)
+        {
             max_columns = column_count;
         }
 
@@ -58,40 +73,48 @@ char*** readFile()
     fseek(file, 0, SEEK_SET);
 
     // To store the output
-    char*** output = (char***)malloc(rows * sizeof(char**));
-    for (int i = 0; i < rows; i++) {
-        output[i] = (char**)malloc(max_columns * sizeof(char*));
-        for (int j = 0; j < max_columns; j++) {
-            output[i][j] = (char*)malloc(MAX_LENGTH * sizeof(char));
+    char ***output = (char ***)malloc(rows * sizeof(char **));
+    for (int i = 0; i < rows; i++)
+    {
+        output[i] = (char **)malloc(max_columns * sizeof(char *));
+        for (int j = 0; j < max_columns; j++)
+        {
+            output[i][j] = (char *)malloc(MAX_LENGTH * sizeof(char));
         }
     }
 
     int row_count = 0;
 
     // Store each word for its row and column
-    while (fgets(line, sizeof(line), file)) {
+    while (fgets(line, sizeof(line), file))
+    {
         int len = strlen(line);
-        if (len > 0 && line[len - 1] == '\n') {
+        if (len > 0 && line[len - 1] == '\n')
+        {
             line[len - 1] = '0';
             line[len - 2] = ' ';
         }
         printf("%s\n", line);
 
         int column_count = 0;
-        char* token = strtok(line, " ");
+        char *token = strtok(line, " ");
 
-        while (token != NULL) {
-            if (strcmp(token, "0") == 0) {
+        while (token != NULL)
+        {
+            if (strcmp(token, "0") == 0)
+            {
                 strcpy(output[row_count][column_count], "Alright");
             }
-            else {
+            else
+            {
                 strcpy(output[row_count][column_count], token);
             }
             token = strtok(NULL, " ");
             column_count++;
         }
 
-        while (column_count < max_columns) {
+        while (column_count < max_columns)
+        {
             strcpy(output[row_count][column_count], "Alright");
             column_count++;
         }
@@ -112,13 +135,95 @@ char*** readFile()
     return output;
 }
 
+char ***encodeMessage(char ***output)
+{
 
+    // To store the encoded output
+    char ***encodedOutput = (char ***)malloc(rows * sizeof(char **));
+    for (int i = 0; i < rows; i++)
+    {
+        encodedOutput[i] = (char **)malloc(max_columns * sizeof(char *));
+        for (int j = 0; j < max_columns; j++)
+        {
+            encodedOutput[i][j] = (char *)malloc(MAX_LENGTH * sizeof(char));
+        }
+    }
 
+    for (int r = 0; r < rows; r++)
+    {
+        for (int c = 0; c < max_columns; c++)
+        {
+            char *word = output[r][c];
+            int word_length = strlen(word);
+            char *encodedWord = malloc((word_length + 1) * sizeof(char)); // Allocate memory for encoded message
+            int shift = 0;
+            for (int i = 0; i < word_length; i++)
+            {
+                if (word[i] >= 'a' && word[i] <= 'z')
+                {
+                    shift += (c+1);
+                    // printf("%d", shift);
+                    encodedWord[i] = (word[i] - 'a' + shift) % 26 + 'a';
+                }
+                else if (word[i] >= 'A' && word[i] <= 'Z')
+                {
+                    shift += (c+1);
+                    // printf("%d", shift);
+                    encodedWord[i] = (word[i] - 'A' + shift) % 26 + 'A';
+                }
+                else if (word[i] == '!')
+                {
+                    encodedWord[i] = '1';
+                }
+                else if (word[i] == '?')
+                {
+                    encodedWord[i] = '2';
+                }
+                else if (word[i] == ',')
+                {
+                    encodedWord[i] = '3';
+                }
+                else if (word[i] == ';')
+                {
+                    encodedWord[i] = '4';
+                }
+                else if (word[i] == ':')
+                {
+                    encodedWord[i] = '5';
+                }
+                else if (word[i] == '%')
+                {
+                    encodedWord[i] = '6';
+                }
+                else if (word[i] >= '0' && word[i] <= '9')
+                {
+                    int num = word[i] - '0';
+                    num = 1000000 - num;
+                    char numStr[10];
+                    sprintf(numStr, "%d", num);
+                    encodedWord[i] = numStr[0];
+                }
+                else
+                {
+                    encodedWord[i] = word[i]; // Copy non-encodable characters as is
+                }
+                
+            }
+            // printf("\t");
+            // add word to encoded output
+            strcpy(encodedOutput[r][c], encodedWord);
+        }
+
+        // printf("\n");
+    }
+
+    return encodedOutput;
+}
 
 /*
 parent process create these:
 
-single sender process: 
+single sender process:
 1) gets the message from an input file (e.g. sender.txt) that contains multiple lines -- DONE
 2) split the input file by column based on the blank character between words -- DONE
 3) should create as many children processes as needed depending on the number of columns in the file
@@ -144,25 +249,25 @@ encoding:
     F) Each encoded column must have a prefix or suffix added to it so that the receiver process is able to identify the column number correctly.
 
 
-user-defined number of helper processes: 
+user-defined number of helper processes:
 1) continuously swap the messages that are present in the shared memory to make it hard for spy processes to get all the columns of the file
 2) example, a particular helper process might at some point swap between the encoded messages in locations 3 & 10 of the shared memory
 
-Spy processes: 
+Spy processes:
 1) Spy processes will continuously access the shared memory locations randomly to get the encoded messages before sending them to the master spy process
 
-single master spy process: 
+single master spy process:
 1) tries to order the columns in the right order after getting them from the spy processes
 2) It will drop columns it already received.
 3) When the master spy is confident it got all the columns, it tries to decode the messages
 4)  decode the messages in a file called spy.txt before informing the parent process
 
-single receiver process: 
+single receiver process:
 1) continuously access the shared memory locations randomly to get the encoded messages
 2) it will order the columns it gets in the right order and drops the columns it already received
 3) When it is confident it got all the columns, it tries to decode the messages in a file called receiver.txt before informing the parent process
 
-user-defined number of spy processes: 
+user-defined number of spy processes:
 1)
 2)
 3)
