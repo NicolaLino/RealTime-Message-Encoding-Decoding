@@ -7,6 +7,7 @@
 int open_shmem(int);
 void validateInput(int, char **);
 char *encodeMessage(char *, int);
+char *decodeMessage(char *);
 struct message
 {
     long type;               // Message type
@@ -49,12 +50,14 @@ int main(int argc, char **argv) // sender child process
     printf("Child process %d received message: %s\n", getpid(), msg.text);
     char *encodedMessage = encodeMessage(msg.text, column_number);
 
+
     shared_data = (char *)shmat(shmid, NULL, 0);
     if (shared_data == (char *)(-1))
     {
         perror("shmat");
         exit(1);
     }
+
     sleep(1);
     printf("Child process %d Encoded message: %s\n", getpid(), encodedMessage);
     strcpy(shared_data + (Index * 100), encodedMessage);
@@ -62,6 +65,15 @@ int main(int argc, char **argv) // sender child process
     sleep(1);
 
     printf("String read from shared memory: %s\n", shared_data + (Index * 100));
+
+    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    // decode message process done like this to avoid errors
+    // char *decodedMessage = decodeMessage(encodedMessage);
+    // printf("Child process %d Decoded message: %s\n", getpid(), decodedMessage);
+    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
 
     return 0;
 }
@@ -186,7 +198,7 @@ char *encodeMessage(char *message, int column)
             {
                 int num = word[i] - '0';
                 num = 1000000 - num;
-                char numStr[10];
+                char numStr[100];
                 sprintf(numStr, "%d", num);
                 encodedWord[i] = numStr[0];
             }
@@ -208,4 +220,82 @@ char *encodeMessage(char *message, int column)
     }
 
     return encodedMessage;
+}
+
+
+
+char *decodeMessage(char *encodedMessage)
+{
+    char *token = strtok(encodedMessage, " "); // Get the first token (column number)
+    int column = atoi(token);
+
+    char *decodedMessage = malloc((strlen(encodedMessage) - strlen(token) + 1) * sizeof(char)); // Allocate memory for decoded message
+    decodedMessage[0] = '\0';                                                                   // Initialize decodedMessage as an empty string
+
+    token = strtok(NULL, " "); // Get the next token (encoded word)
+    while (token != NULL)
+    {
+        int message_length = strlen(token);
+        int shift = 0;
+        char *decodedWord = malloc((message_length + 1) * sizeof(char)); // Allocate memory for decoded word
+        decodedWord[0] = '\0';                                           // Initialize decodedWord as an empty string
+
+        for (int i = 0; i < message_length; i++)
+        {
+            if (token[i] >= 'a' && token[i] <= 'z')
+            {
+                shift += column;
+                decodedWord[i] = (token[i] - 'a' - shift + 26) % 26 + 'a';
+            }
+            else if (token[i] >= 'A' && token[i] <= 'Z')
+            {
+                shift += column;
+                decodedWord[i] = (token[i] - 'A' - shift + 26) % 26 + 'A';
+            }
+            else if (token[i] == '1')
+            {
+                decodedWord[i] = '!';
+            }
+            else if (token[i] == '2')
+            {
+                decodedWord[i] = '?';
+            }
+            else if (token[i] == '3')
+            {
+                decodedWord[i] = ',';
+            }
+            else if (token[i] == '4')
+            {
+                decodedWord[i] = ';';
+            }
+            else if (token[i] == '5')
+            {
+                decodedWord[i] = ':';
+            }
+            else if (token[i] == '6')
+            {
+                decodedWord[i] = '%';
+            }
+            else if (token[i] >= '0' && token[i] <= '9')
+            {
+                int num = token[i] - '0';
+                num = 1000000 - num;
+                decodedWord[i] = num / 100000 + '0';
+            }
+            else
+            {
+                decodedWord[i] = token[i]; // Copy non-decodable characters as is
+            }
+        }
+        decodedWord[message_length] = '\0'; // Add null-terminator to the decoded word
+        strcat(decodedMessage, decodedWord);
+        strcat(decodedMessage, " ");
+        free(decodedWord); // Free the memory allocated for decodedWord
+
+        token = strtok(NULL, " "); // Get the next token (encoded word)
+    }
+
+    decodedMessage[strlen(decodedMessage) - 1] = '\0'; // Remove the trailing space character
+
+    return decodedMessage;
 }
