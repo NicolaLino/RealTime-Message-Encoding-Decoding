@@ -11,20 +11,24 @@ int main(int argc, char **argv)
 {
 
     int shmid = createShmem();
-    char keyy[20];
-    pid_t Sender = fork();
-
+    char shm_key[20];
+    sprintf(shm_key, "%d", key);
+    
+    pid_t Sender = fork(); // single sender process
     if (Sender == -1) {
         perror("fork");
         exit(-1);
-
     } else if (Sender == 0) {
-        sprintf(keyy, "%d", key);
-        execl("./sender", "sender", keyy, NULL);
+        execl("./sender", "sender", shm_key, NULL);
     }
 
-
-
+    // pid_t Receiver = fork(); // single receiver process
+    // if (Receiver == -1) {
+    //     perror("fork");
+    //     exit(-1);
+    // } else if (Receiver == 0) {
+    //     execl("./receiver", "receiver", shm_key, NULL);
+    // }
 
     wait(NULL);
     
