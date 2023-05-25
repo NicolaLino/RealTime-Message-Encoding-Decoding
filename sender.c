@@ -170,7 +170,8 @@ char*** readFile()
 
         while (token != NULL) {
             if (strcmp(token, "0") == 0) {
-                strcpy(output[row_count][column_count], "Alright");
+                if (column_count != max_columns)
+                    strcpy(output[row_count][column_count], "Alright");
             }
             else {
                 strcpy(output[row_count][column_count], token);
