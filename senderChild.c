@@ -47,7 +47,7 @@ int main(int argc, char **argv) // sender child process
 
     // Process the received message
     printf("Child process %d received message: %s\n", getpid(), msg.text);
-    char *encodedMessage = encodeMessage(msg.text, Index);
+    char *encodedMessage = encodeMessage(msg.text, column_number);
 
     shared_data = (char *)shmat(shmid, NULL, 0);
     if (shared_data == (char *)(-1))
@@ -99,12 +99,16 @@ void validateInput(int argc, char **argv)
             exit(-3);
         }
 
-        if (!(Index = atoi(argv[3]) + 1) && !(column_number = atoi(argv[3])))
+        if (!(Index = atoi(argv[3]) + 1))
         {
             perror("\nError: The third argument must be an integer");
             exit(-4);
         }
-
+        if (!(column_number = atoi(argv[3])+1))
+        {
+            perror("\nError: The third argument must be an integer");
+            exit(-4);
+        }
         if (!(max_columns = atoi(argv[4])))
         {
             perror("\nError: The fourth argument must be an integer");
@@ -112,7 +116,6 @@ void validateInput(int argc, char **argv)
         }
     }
 }
-
 
 char *encodeMessage(char *message, int column)
 {
@@ -129,7 +132,11 @@ char *encodeMessage(char *message, int column)
     }
 
     char *encodedMessage = malloc(((MAX_LENGTH + 1) * max_columns) * sizeof(char)); // Allocate memory for encoded message
-    encodedMessage[0] = '\0'; // Initialize encodedMessage as an empty string
+    encodedMessage[0] = '\0';                                                       // Initialize encodedMessage as an empty string
+    // add prefix to encoded message
+    char column_number_string[10];
+    sprintf(column_number_string, "%d ", column);
+    strcpy(encodedMessage, column_number_string);
 
     for (int r = 0; r < num_words; r++)
     {
@@ -137,18 +144,18 @@ char *encodeMessage(char *message, int column)
         int message_length = strlen(word);
         int shift = 0;
         char *encodedWord = malloc((message_length + 1) * sizeof(char)); // Allocate memory for encoded word
-        encodedWord[0] = '\0'; // Initialize encodedWord as an empty string
+        encodedWord[0] = '\0';                                           // Initialize encodedWord as an empty string
 
         for (int i = 0; i < message_length; i++)
         {
             if (word[i] >= 'a' && word[i] <= 'z')
             {
-                shift += column+1;
+                shift += column;
                 encodedWord[i] = (word[i] - 'a' + shift) % 26 + 'a';
             }
             else if (word[i] >= 'A' && word[i] <= 'Z')
             {
-                shift += column+1;
+                shift += column;
                 encodedWord[i] = (word[i] - 'A' + shift) % 26 + 'A';
             }
             else if (word[i] == '!')
@@ -195,7 +202,8 @@ char *encodeMessage(char *message, int column)
     }
 
     encodedMessage[strlen(encodedMessage) - 1] = '\0'; // Remove the trailing space character
-    for (int i = 0; i < num_words; i++) {
+    for (int i = 0; i < num_words; i++)
+    {
         free(words[i]); // Free the memory allocated for each word
     }
 
