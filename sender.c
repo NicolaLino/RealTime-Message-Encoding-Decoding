@@ -54,8 +54,10 @@ int main(int argc, char **argv) // sender process
         else if (pid == 0) // Code executed in child process
         {
             sprintf(index, "%d", i);
-            //sleep(1);
-            execl("./senderChild", "senderChild", keyString, sh_key, index, max_columns_send, i,  NULL);//msg_q, shmem, i, max_columns
+            char *args[] = {"./senderChild", keyString, sh_key, index, max_columns_send, NULL};
+            execv("./senderChild", args);
+            perror("execv");
+            // sleep(2);
             break;
         } 
         else // Sender process
@@ -68,7 +70,7 @@ int main(int argc, char **argv) // sender process
                 strcat(temp, " ");
             }
             strcpy(msg.text, temp);
-            printf("Column %d: %s\n",i, msg.text);
+            printf("Column %d: %s\n",i+1, msg.text);
             
             if (msgsnd(msgqid, &msg, sizeof(msg.text), 0) == -1) {
                 perror("msgsnd");
