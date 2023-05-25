@@ -5,6 +5,7 @@ parent
 aa.c
 sender
 senderChild
+reciever
 
 # Object files
 *.o
