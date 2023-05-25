@@ -79,7 +79,7 @@ int main(int argc, char **argv) // sender process
         }
     }
 
-    printf("\nEND");
+    printf("\nEND\n");
 
     //Wait for child processes to finish
     for (int i = 0; i < max_columns; i++) {

@@ -2,7 +2,7 @@
 
 # This file only to run the project quickly for testing not for final production
 
-
+#run chmod 777 run.sh to make it executable
 
 rm -f parent
 rm -f sender
