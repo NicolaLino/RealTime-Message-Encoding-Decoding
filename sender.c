@@ -55,7 +55,7 @@ int main(int argc, char **argv) // sender process
         {
             sprintf(index, "%d", i);
             //sleep(1);
-            execl("./senderChild", "senderChild", keyString, sh_key, index, max_columns_send,  NULL);//msg_q, shmem, i, max_columns
+            execl("./senderChild", "senderChild", keyString, sh_key, index, max_columns_send, i,  NULL);//msg_q, shmem, i, max_columns
             break;
         } 
         else // Sender process
