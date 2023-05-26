@@ -3,14 +3,22 @@
 #include "constants.h"
 
 key_t key;
+union semun
+{
+    int val;
+    struct semid_ds *buf;
+    ushort *array;
+};
 
 int createShmem();
+int createSemaphore();
 
 
 int main(int argc, char **argv)
 {
 
     int shmid = createShmem();
+    int semid = createSemaphore();
     char shm_key[20];
     sprintf(shm_key, "%d", key);
     
@@ -22,13 +30,13 @@ int main(int argc, char **argv)
         execl("./sender", "sender", shm_key, NULL);
     }
 
-    // pid_t Receiver = fork(); // single receiver process
-    // if (Receiver == -1) {
-    //     perror("fork");
-    //     exit(-1);
-    // } else if (Receiver == 0) {
-    //     execl("./receiver", "receiver", shm_key, NULL);
-    // }
+    pid_t Receiver = fork(); // single receiver process
+    if (Receiver == -1) {
+        perror("fork");
+        exit(-1);
+    } else if (Receiver == 0) {
+        execl("./receiver", "receiver", shm_key, NULL);
+    }
 
     wait(NULL);
     
@@ -38,19 +46,40 @@ int main(int argc, char **argv)
 
 int createShmem(){
 
-    key = ftok(".", 'R');
+    key = ftok(".", MEM_SEED);
     int shmid;
-
-    if( (shmid = shmget(key, 100, IPC_CREAT | 0666)) == -1){
-
+    if((shmid = shmget(key, 100, IPC_CREAT | 0666)) == -1){
         perror("create shmget error\n");
         exit(-1);
-
     }
-
     return shmid;
 
 }
+
+int createSemaphore()
+{
+    key_t semKey = ftok(".", SEM_SEED);
+
+    int semid = semget(semKey, 1, IPC_CREAT | 0666);
+    if (semid == -1)
+    {
+        perror("semget -- sim_system");
+        exit(-1);
+    }
+    /* Set the value of the semaphore to 1 */
+    union semun arg;
+    arg.val = 1;
+    if (semctl(semid, 0, SETVAL, arg) == -1)
+    {
+        perror("semctl");
+        exit(-1);
+    }
+    printf("semaphore is created in parent\n");
+    return semid;
+}
+
+
+
 
 
 

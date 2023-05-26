@@ -4,9 +4,12 @@
 
 // Define the message structure
 
-int open_shmem(int);
+int open_shmem();
 void validateInput(int, char **);
 char *encodeMessage(char *, int);
+int open_sem();
+void lock(int);
+void unlock(int);
 struct message
 {
     long type;               // Message type
@@ -25,7 +28,8 @@ int main(int argc, char **argv) // sender child process
     char *shared_data;
     validateInput(argc, argv);
     Index--;
-    int shmid = open_shmem(shmkey);
+    int shmid = open_shmem();
+    int semid = open_sem();
 
     int msgqid;
 
@@ -46,8 +50,10 @@ int main(int argc, char **argv) // sender child process
     sleep(2);
 
     // Process the received message
-    printf("Child process %d received message: %s\n", getpid(), msg.text);
+    //printf("Child process %d received message: %s\n", getpid(), msg.text);
     char *encodedMessage = encodeMessage(msg.text, column_number);
+
+    lock(semid);
 
     shared_data = (char *)shmat(shmid, NULL, 0);
     if (shared_data == (char *)(-1))
@@ -59,23 +65,15 @@ int main(int argc, char **argv) // sender child process
     printf("Child process %d Encoded message: %s\n", getpid(), encodedMessage);
     strcpy(shared_data + (Index * 100), encodedMessage);
 
-    sleep(1);
-
     printf("String read from shared memory: %s\n", shared_data + (Index * 100));
 
-    return 0;
-}
-
-int open_shmem(int key)
-{
-
-    int shmid;
-    if ((shmid = shmget(key, 0, 0)) == -1)
+    unlock(semid);
+    if (shmdt(shared_data) < 0) // deattach the shared memory
     {
-        perror("Error opening shared memory from Parent");
-        exit(-2);
+        perror("shmdt");
+        exit(-1);
     }
-    return shmid;
+    return 0;
 }
 
 void validateInput(int argc, char **argv)

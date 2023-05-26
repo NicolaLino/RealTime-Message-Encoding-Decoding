@@ -4,6 +4,48 @@
 #include "header.h"
 #include "constants.h"
 
+int open_shmem(){
+
+    key_t sh_key = ftok(".", MEM_SEED);
+    int shmid;
+	if((shmid=shmget(sh_key,0,0))==-1){
+		perror("Error opening shared memory from Parent");
+		exit(-2);
+	}
+	return shmid;
+}
+
+int open_sem(){
+    key_t semKey = ftok(".", SEM_SEED);
+
+    int semid = semget(semKey, 1, IPC_CREAT | 0666);
+    if (semid == -1)
+    {
+        perror("semget -- sim_system");
+        exit(-1);
+    }
+    printf("semaphore is opend\n");
+    return semid;
+
+}
+
+void lock(int semid)
+{
+    struct sembuf acquire = {0, -1, SEM_UNDO};
+    if (semop(semid, &acquire, 1) == -1) {
+        perror("semop -- lock");
+        exit(1);
+    }
+}
+void unlock(int semid)
+{
+    struct sembuf release = {0, 1, SEM_UNDO};
+    if (semop(semid, &release, 1) == -1) {
+        perror("semop -- unlock");
+        exit(1);
+    }
+}
+
 // set the text color to green
 void green() {
     printf("\033[32;1m");

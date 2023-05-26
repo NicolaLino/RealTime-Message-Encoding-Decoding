@@ -6,7 +6,7 @@ int max_columns = 0;
 int rows = 0;
 pid_t pid;
 
-int open_shmem(int);// put in header (repeated two times)
+int open_shmem();// put in header (repeated two times)
 
 // Define the message structure
 struct message {
@@ -88,8 +88,8 @@ int main(int argc, char **argv) // sender process
         wait(NULL);
     }
 
-    int shmkey = atoi(sh_key);
-    int shmid = open_shmem(shmkey);
+    int shmid = open_shmem();
+    int semid = open_sem();
 
     char* shared_data = (char *) shmat(shmid, NULL, 0);
     if (shared_data == (char *)(-1)) {
@@ -97,12 +97,16 @@ int main(int argc, char **argv) // sender process
         exit(1);
     }
     
-
+    lock(semid);
     for (int i = 0 ; i < max_columns; i++){
             char* message = shared_data + (i * 100);
             printf("Message %d: %s\n", i, message);
 
     }
+    unlock(semid);
+
+    shmdt(shared_data); 
+
 
 
 
@@ -201,15 +205,4 @@ char*** readFile()
     }
 
     return output;
-}
-
-
-int open_shmem(int key){
-
-    int shmid;
-	if((shmid=shmget(key,0,0))==-1){
-		perror("Error opening shared memory from Parent");
-		exit(-2);
-	}
-	return shmid;
 }
