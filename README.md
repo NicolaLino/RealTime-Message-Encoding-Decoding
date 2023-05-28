@@ -39,8 +39,6 @@ The system follows the following scenario:
 - [ ] Update the README file with detailed instructions on how to run the system.
 - [ ] Write a comprehensive documentation describing the system's architecture, components, and functionality.
 
-
-
 ## 🤖 Tech Stack
 
 - Linux OS
@@ -49,61 +47,59 @@ The system follows the following scenario:
 - C programming language
 - OpenGL library
 
-
 🚧 This project is a work in progress. Further updates and enhancements will be made.
-
 
 1. Parent Process Initialization:
 
-    * Create a single sender process.
-    * Create a single receiver process.
-    * Create a single master spy process.
-    * Create a user-defined number of helper processes.
-    * Create a user-defined number of spy processes.
+    [x] Create a single sender process.
+    [x] Create a single receiver process.
+    [ ] Create a single master spy process.
+    [ ] Create a user-defined number of helper processes.
+    [ ] Create a user-defined number of spy processes.
 
 2. Sender Process:
 
-    * Read the message from an input file (e.g., sender.txt).
-    * Split the message into columns based on the blank character between words.
-    * Replace any empty strings in a column with the string "alright."
-    * Create child processes for each column.
-    * Send the column messages to the respective child processes.
+    [x] Read the message from an input file (e.g., sender.txt).
+    [x] Split the message into columns based on the blank character between words.
+    [x] Replace any empty strings in a column with the string "alright."
+    [x] Create child processes for each column.
+    [x] Send the column messages to the respective child processes.
 
 3. Encoding Child Processes:
 
-    * Receive the column message from the sender process.
-    * Encode the column message based on the specified rules.
-    * Place the encoded message in the shared memory at the appropriate location.
+    [x] Receive the column message from the sender process.
+    [x] Encode the column message based on the specified rules.
+    [x] Place the encoded message in the shared memory at the appropriate location.
 
 4. Helper Processes:
 
-    * Continuously swap messages in the shared memory to obfuscate the order.
-    * Randomly choose and swap the encoded messages between locations.
+    [ ] Continuously swap messages in the shared memory to obfuscate the order.
+    [ ] Randomly choose and swap the encoded messages between locations.
 
 5. Spy Processes:
 
-    * Continuously access the shared memory locations randomly.
-    * Retrieve the encoded messages.
-    * Send the messages to the master spy process.
+    [ ] Continuously access the shared memory locations randomly.
+    [ ] Retrieve the encoded messages.
+    [ ] Send the messages to the master spy process.
 
 6. Master Spy Process:
 
-    * Receive encoded messages from the spy processes.
-    * Order the columns correctly, dropping duplicates.
-    * Attempt to decode the messages in the spy.txt file.
-    * Inform the parent process about the outcome.
+    [ ] Receive encoded messages from the spy processes.
+    [ ] Order the columns correctly, dropping duplicates.
+    [ ] Attempt to decode the messages in the spy.txt file.
+    [ ] Inform the parent process about the outcome.
 
 7. Receiver Process:
 
-    * Continuously access the shared memory locations randomly.
-    * Retrieve the encoded messages.
-    * Order the columns correctly, dropping duplicates.
-    * Attempt to decode the messages in the receiver.txt file.
-    * Inform the parent process about the outcome.
+    [ ] Continuously access the shared memory locations randomly.
+    [ ] Retrieve the encoded messages.
+    [ ] Order the columns correctly, dropping duplicates.
+    [ ] Attempt to decode the messages in the receiver.txt file.
+    [ ] Inform the parent process about the outcome.
 
 8. Parent Process:
 
-    * Evaluate the decoding results of the receiver and master spy processes.
-    * Determine if the receiver successfully decoded the messages before the master spy.
-    * Label the operation as successful or failed based on the results.
-    * End the simulation if the user-defined thresholds for successful or failed operations are reached.
+    [ ] Evaluate the decoding results of the receiver and master spy processes.
+    [ ] Determine if the receiver successfully decoded the messages before the master spy.
+    [ ] Label the operation as successful or failed based on the results.
+    [ ] End the simulation if the user-defined thresholds for successful or failed operations are reached.
