@@ -12,11 +12,7 @@ void lock(int);
 void unlock(int);
 char *decodeMessage(char *);
 
-struct message
-{
-    long type;               // Message type
-    char text[MAX_MSG_SIZE]; // Message data
-};
+
 
 key_t key;
 int shmkey;

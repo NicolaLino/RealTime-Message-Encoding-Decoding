@@ -10,12 +10,6 @@ union semun
     ushort *array;
 };
 
-struct message {
-    long type;            // Message type
-    char text[MAX_MSG_SIZE];  // Message data
-};
-
-
 int createShmem();
 int createSemaphore();
 void handler1();
