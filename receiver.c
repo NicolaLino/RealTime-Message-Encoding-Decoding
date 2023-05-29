@@ -3,8 +3,8 @@
 #include "constants.h"
 
 int open_shmem(); // put in header (repeated two times)
-//int checkColumns(int[], int);
-void writeFile(char[][MAX_MSG_SIZE], int);
+// int checkColumns(int[], int);
+void writeFile(char**, int, int, int);
 
 int main(int argc, char **argv) // sender process
 {
@@ -14,6 +14,7 @@ int main(int argc, char **argv) // sender process
     int shmid = open_shmem();
     int semid = open_sem();
     int columns = atoi(argv[2]);
+    int rows = atoi(argv[3]);
     int value;
     int read[columns];
     int bitmap[columns];
@@ -27,23 +28,23 @@ int main(int argc, char **argv) // sender process
 
     while (!checkColumns(bitmap, columns))
     {
-        //Generate a random value(index)
+        // Generate a random value(index)
         value = (int)(rand() % columns);
 
-        //If column is already read, then get another index
+        // If column is already read, then get another index
         if (bitmap[value] == 1)
         {
             continue;
         }
 
-        //set column to read
+        // set column to read
         bitmap[value] = 1;
 
-        //lock with semaphore
+        // lock with semaphore
         usleep(600000);
         lock(semid);
 
-        //Read from the shared memory
+        // Read from the shared memory
         char *shared_data = attachSharedMemory(shmid);
 
         printf("String received from shared memory in reciever: %s\n", shared_data + (value * 100));
@@ -51,21 +52,28 @@ int main(int argc, char **argv) // sender process
         char *decode = decodeMessage(arrange[value]);
         strcpy(arrange[value], decode);
 
-
-        //unlock
+        // unlock
         unlock(semid);
         shmdt(shared_data);
     }
 
-    //fix this to return
-    ColumntoRow(arrange, columns);
-    writeFile(arrange, columns);
+    // fix this to return
 
-    for (int i = 0; i < columns; i++)
+    int maxsize = 0; // Declare maxsize variable
+    //char** output = ColumntoRow(arrange, columns, &maxsize);
+
+   // writeFile(output, columns, maxsize);
+    printf("MAXXXXXX SIZE : %d\n\n\n\n\n", maxsize);
+    char** output = ColumntoRow(arrange, columns, &maxsize);
+
+    writeFile(output, columns, maxsize, rows);
+
+    for (int i = 0; i < rows; i++)
     {
-        printf("%s\n", arrange[i]);
+        printf("%s\n", output[i]);
         fflush(stdout);
     }
+
 
     return 0;
 }
@@ -82,7 +90,7 @@ int main(int argc, char **argv) // sender process
     return 1;
 }*/
 
-void writeFile(char arrange[][MAX_MSG_SIZE], int columns)
+void writeFile(char **arrange, int columns, int maxsize, int rows)
 {
     // Rest of the code remains the same
     FILE *file = fopen("receiver.txt", "w");
@@ -92,9 +100,13 @@ void writeFile(char arrange[][MAX_MSG_SIZE], int columns)
         exit(1);
     }
 
-    for (int i = 0; i < columns; i++)
+    for (int i = 0; i < rows; i++)
     {
-        fprintf(file, "%s\n", arrange[i]);
+        //if(arrange[i][0] != '\0')
+            fprintf(file, "%s\n", arrange[i]);
+        
+        //else
+            //break;
     }
 
     fclose(file);

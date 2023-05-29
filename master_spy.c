@@ -23,11 +23,11 @@ int main(int argc, char **argv)
     while(!checkColumns(bitmap, columns)){
 
         
-            if (msgrcv(msgqSpy, &msg, sizeof(msg.text), 1, 0) == -1)
-            {
+        if (msgrcv(msgqSpy, &msg, sizeof(msg.text), 1, 0) == -1)
+        {
             perror("msgrcv");
             exit(-1);
-            }
+        }
         
 
         
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 
         //set column to read
         bitmap[(int)(msg.text[0])] = 1;
-        printf("IN MASTERSPY %s\n",msg.text);
+        printf("Message recieved in Master Spy %s\n",msg.text);
         fflush(stdout);
         
 

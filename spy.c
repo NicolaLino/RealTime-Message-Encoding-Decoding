@@ -24,16 +24,16 @@ int main(int argc, char **argv)
     }
 
    int i = 0;
-    while(i < 5)
+    while(1)
     {
-        i++;
+        
         value = (int)(rand() % columns);
-        usleep(7000000);
+        usleep(70000);
         lock(semid);
 
         char *shared_data = attachSharedMemory(shmid);
 
-        printf("String received from shared memory in Spy: %s\n", shared_data + (value * 100));
+        //printf("String received from shared memory in Spy: %s\n", shared_data + (value * 100));
 
         msgSP.type = 1;
         strcpy(msgSP.text, shared_data + (value * 100) );
@@ -43,7 +43,7 @@ int main(int argc, char **argv)
                 exit(-1);
             }
             else{
-                printf("%s\n", msgSP.text);
+                printf("msg sent from spy is: %s\n", msgSP.text);
                 fflush(stdout);
             }
         
