@@ -9,10 +9,7 @@ pid_t pid;
 int open_shmem();// put in header (repeated two times)
 
 // Define the message structure
-struct message {
-    long type;            // Message type
-    char text[MAX_MSG_SIZE];  // Message data
-};
+
 
 char*** readFile();
 
@@ -136,7 +133,7 @@ int main(int argc, char **argv) // sender process
    // kill();
    // shmdt(shared_data);
 
-    while(1);
+   // while(1);
     
 
     return 0;
