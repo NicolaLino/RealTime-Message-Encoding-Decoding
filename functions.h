@@ -52,7 +52,7 @@ int open_shmem()
         exit(-2);
     }
     // Return the shared memory identifier
-    return shmid;
+    return shmid; 
 }
 
 int open_sem()
@@ -68,7 +68,6 @@ int open_sem()
         perror("semget -- sim_system");
         exit(-1);
     }
-    printf("Semaphore is opened\n");
     // Return the semaphore identifier
     return semid;
 }

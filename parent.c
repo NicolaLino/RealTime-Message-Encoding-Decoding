@@ -3,6 +3,7 @@
 #include "constants.h"
 
 key_t key;
+key_t semKey;
 union semun
 {
     int val;
@@ -36,6 +37,8 @@ int main(int argc, char **argv)
 
     char shm_key[20];
     sprintf(shm_key, "%d", key);
+    char sem_key[20];
+    sprintf(sem_key, "%d", semKey);
 
     pid_t senderPid = fork(); // single sender process
     if (senderPid == -1)
@@ -69,7 +72,7 @@ int main(int argc, char **argv)
         helperPids[i] = fork();
         if (helperPids[i] == 0)
         {
-            execl("./helper", "helper", shm_key, msg.text, NULL);
+            execl("./helper", "helper", msg.text, shm_key, sem_key, NULL);
             perror("helper execl");
             exit(0);
         }
@@ -80,37 +83,37 @@ int main(int argc, char **argv)
         }
     }
 
-    // Fork the spy processes
-    // pid_t spyPids[spies_count];
-    // for (int i = 0; i < spies_count; i++)
-    // {
-    //     spyPids[i] = fork();
-    //     if (spyPids[i] == 0)
-    //     {
-    //         // Code for spy process
-    //         // ...
-    //         exit(0);
-    //     }
-    //     else if (spyPids[i] == -1)
-    //     {
-    //         perror("fork");
-    //         exit(1);
-    //     }
-    // }
+    //Fork the spy processes
+    pid_t spyPids[spies_count];
+    for (int i = 0; i < spies_count; i++)
+    {
+        spyPids[i] = fork();
+        if (spyPids[i] == 0)
+        {
+            execl("./spy", "spy", shm_key, msg.text, NULL);
+            perror("spy execl");
+            exit(0);
+        }
+        else if (spyPids[i] == -1)
+        {
+            perror("fork");
+            exit(1);
+        }
+    }
 
-    // Fork the master spy process
-    // pid_t masterSpyPid = fork();
-    // if (masterSpyPid == 0)
-    // {
-    //     // Code for master spy process
-    //     // ...
-    //     exit(0);
-    // }
-    // else if (masterSpyPid == -1)
-    // {
-    //     perror("fork");
-    //     exit(1);
-    // }
+    //Fork the master spy process
+    pid_t masterSpyPid = fork();
+    if (masterSpyPid == 0)
+    {
+        execl("./master_spy", "master_spy", shm_key, msg.text, NULL);
+        perror("master_spy execl");
+        exit(0);
+    }
+    else if (masterSpyPid == -1)
+    {
+        perror("fork");
+        exit(1);
+    }
 
     pid_t receiverPid = fork(); // single receiver process
     if (receiverPid == -1)
@@ -128,12 +131,12 @@ int main(int argc, char **argv)
     {
         waitpid(helperPids[i], NULL, 0);
     }
-    // for (int i = 0; i < spies_count; i++) {
-    //     waitpid(spyPids[i], NULL, 0);
-    // }
+    for (int i = 0; i < spies_count; i++) {
+        waitpid(spyPids[i], NULL, 0);
+    }
     waitpid(senderPid, NULL, 0);
     waitpid(receiverPid, NULL, 0);
-    // waitpid(masterSpyPid, NULL, 0);
+    waitpid(masterSpyPid, NULL, 0);
 
     // Remove the shared memory segment
     deleteSharedMemory(shmid);
@@ -159,7 +162,7 @@ int createSharedMemory()
 
 int createSemaphore()
 {
-    key_t semKey = ftok(".", SEM_SEED);
+    semKey = ftok(".", SEM_SEED);
 
     int semid = semget(semKey, 1, IPC_CREAT | 0666);
     if (semid == -1)
