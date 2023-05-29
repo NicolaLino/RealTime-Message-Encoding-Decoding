@@ -21,7 +21,7 @@ int spies_count = 2;  // number of spies processes
 
 int main(int argc, char **argv)
 {
-
+    char columns[3];
     int shmid = createSharedMemory();
     int semid = createSemaphore();
     // int msgQPS = createMsgq('s');//msg queue to send between sender and parent
@@ -72,9 +72,17 @@ int main(int argc, char **argv)
         perror("msgrcv");
         exit(-1);
     }
+    strcpy(columns, msg.text);
 
-    // printf("MAX columns is %s", msg.text);
-    // fflush(stdout);
+    if (msgrcv(msgQPS, &msg, sizeof(msg.text), 1, 0) == -1)
+    {
+        perror("msgrcv");
+        exit(-1);
+    }
+
+
+    printf("MAX columns is %s\n\n", msg.text);
+    fflush(stdout);
 
     // Fork the helper processes
     pid_t helperPids[helper_count];
@@ -83,7 +91,7 @@ int main(int argc, char **argv)
         helperPids[i] = fork();
         if (helperPids[i] == 0)
         {
-            execl("./helper", "helper", msg.text, shm_key, sem_key, NULL);
+            execl("./helper", "helper", columns, shm_key, sem_key, NULL);
             perror("helper execl");
             exit(0);
         }
@@ -101,7 +109,7 @@ int main(int argc, char **argv)
         spyPids[i] = fork();
         if (spyPids[i] == 0)
         {
-            execl("./spy", "spy", shm_key, msg.text, NULL);
+            execl("./spy", "spy", shm_key, columns, NULL);
             perror("spy execl");
             exit(0);
         }
@@ -116,7 +124,7 @@ int main(int argc, char **argv)
     pid_t masterSpyPid = fork();
     if (masterSpyPid == 0)
     {
-        execl("./master_spy", "master_spy", shm_key, msg.text, NULL);
+        execl("./master_spy", "master_spy", shm_key, columns, NULL);
         perror("master_spy execl");
         exit(0);
     }
@@ -134,7 +142,7 @@ int main(int argc, char **argv)
     }
     else if (receiverPid == 0)
     {
-        execl("./receiver", "receiver", shm_key, msg.text, NULL);
+        execl("./receiver", "receiver", shm_key, columns, msg.text, NULL);
     }
 
     // Wait for all child processes to complete

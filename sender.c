@@ -15,6 +15,7 @@ int main(int argc, char **argv) // sender process
     char keyString[20];
     char index[3];
     char max_columns_send[3];
+    char max_rows[3];
     char ***output = readFile();
     // pid_t senderChildren[max_columns];
 
@@ -33,6 +34,7 @@ int main(int argc, char **argv) // sender process
 
     sprintf(keyString, "%d", key);
     sprintf(max_columns_send, "%d", max_columns);
+    sprintf(max_rows, "%d", rows);
 
     // key_t msgqid = createMsgq('m');
     key_t key2 = ftok(".", 's');
@@ -47,9 +49,16 @@ int main(int argc, char **argv) // sender process
     struct message msgSP;
     msgSP.type = 1;
     strcpy(msgSP.text, max_columns_send);
-    printf("msgSP.text %s\n", msgSP.text);
-    fflush(stdout);
+    //printf("msgSP.text %s\n", msgSP.text);
+    //fflush(stdout);
 
+    if (msgsnd(msgqidSP, &msgSP, sizeof(msgSP.text) - sizeof(long), 0) == -1)
+    { // send column count to parent
+        perror("msgsnd");
+        exit(-1);
+    }
+
+    strcpy(msgSP.text, max_rows);
     if (msgsnd(msgqidSP, &msgSP, sizeof(msgSP.text) - sizeof(long), 0) == -1)
     { // send column count to parent
         perror("msgsnd");

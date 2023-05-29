@@ -28,6 +28,7 @@
 #include <GL/glut.h>
 #include <math.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 #define MAX_LENGTH 100
 

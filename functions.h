@@ -346,17 +346,18 @@ char *decodeMessage(char *encodedMessage)
     return decodedMessage;
 }
 
-void ColumntoRow(char arrange[][MAX_MSG_SIZE], int columns)
+char ** ColumntoRow(char arrange[][MAX_MSG_SIZE], int columns, int* maxsize)
 {
-
-    char *temp = (char *)malloc(MAX_MSG_SIZE * sizeof(char));
+    char* temp = (char*)malloc(MAX_MSG_SIZE * sizeof(char));
     int size = 0;
     char array[MAX_MSG_SIZE][MAX_MSG_SIZE];
+    int maxSize = 0;  // Variable to store the maximum size
 
     for (int i = 0; i < MAX_MSG_SIZE; i++)
     {
         memset(array[i], 0, MAX_MSG_SIZE);
     }
+
     int k = 0;
     for (int i = 0; i < columns; i++)
     {
@@ -364,7 +365,6 @@ void ColumntoRow(char arrange[][MAX_MSG_SIZE], int columns)
         k = 0;
         for (int j = 0; j < MAX_MSG_SIZE; j++)
         {
-
             if (arrange[i][j] != ' ')
             {
                 temp[k] = arrange[i][j];
@@ -380,7 +380,7 @@ void ColumntoRow(char arrange[][MAX_MSG_SIZE], int columns)
                     strcat(array[size], " ");
                 }
                 size++;
-                memset(temp, 0, 40); // Reset temp to an empty string
+                memset(temp, 0, MAX_MSG_SIZE); // Reset temp to an empty string
             }
 
             if (arrange[i][j] == ' ' && arrange[i][j + 1] == ' ')
@@ -389,32 +389,46 @@ void ColumntoRow(char arrange[][MAX_MSG_SIZE], int columns)
                 k = 0;
                 strcat(array[size], " ");
                 size++;
-                memset(temp, 0, 40);
+                memset(temp, 0, MAX_MSG_SIZE);
                 break;
             }
         }
-
         if (strlen(temp) > 0)
         {
             if (strcmp(temp, "Alright") != 0)
-                {
-                    strcat(array[size], temp);
-                    strcat(array[size], " ");
-                }
+            {
+                strcat(array[size], temp);
+                strcat(array[size], " ");
+            }
             size++;
             memset(temp, 0, MAX_MSG_SIZE);
         }
+        // Update maxSize if size is larger
+        if (size > maxSize)
+        {
+            maxSize = size;
+        }
     }
 
-    for (int i = 0; i < MAX_MSG_SIZE; i++)
+    *maxsize = maxSize; // Update the value pointed by maxsize
+
+    char** output = (char**)malloc(maxSize * sizeof(char*));
+    for (int i = 0; i < maxSize; i++)
     {
         if (array[i][0] != '\0')
         {
+            output[i] = (char*)malloc(MAX_MSG_SIZE * sizeof(char));
+            strcpy(output[i], array[i]);
             printf("%s\n", array[i]);
+            printf("last row %d %s\n\n\n", maxSize ,array[maxSize - 1]);
         }
         else
             break;
     }
+
+    free(temp); // Free dynamically allocated memory
+    return output; // No need to return output since it's modified through a pointer
 }
+
 
 #endif

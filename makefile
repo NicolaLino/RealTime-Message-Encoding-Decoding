@@ -7,6 +7,7 @@ files:
 	$(G) sender.c $(O) sender
 	$(G) senderChild.c $(O) senderChild
 	$(G) receiver.c $(O) receiver
+	$(G) helper.c $(O) helper
 	$(G) spy.c $(O) spy
 	$(G) master_spy.c $(O) master_spy
 
