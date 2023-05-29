@@ -49,12 +49,13 @@ int main(int argc, char **argv) // sender child process
         perror("msgrcv");
         exit(-1);
     }
-    sleep(2);
+    //sleep(2);
 
     // Process the received message
     // printf("Child process %d received message: %s\n", getpid(), msg.text);
     char *encodedMessage = encodeMessage(msg.text, column_number);
 
+    usleep(300000);
     lock(semid);
 
     shared_data = (char *)shmat(shmid, NULL, 0);
@@ -63,8 +64,7 @@ int main(int argc, char **argv) // sender child process
         perror("shmat");
         exit(1);
     }
-
-    sleep(1);
+    //sleep(1);
     printf("Child process %d Encoded message: %s\n", getpid(), encodedMessage);
     strcpy(shared_data + (Index * 100), encodedMessage);
 
@@ -83,6 +83,8 @@ int main(int argc, char **argv) // sender child process
     // char *decodedMessage = decodeMessage(encodedMessage);
     // printf("Child process %d Decoded message: %s\n", getpid(), decodedMessage);
     //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    //while(1);
 
 
     return 0;

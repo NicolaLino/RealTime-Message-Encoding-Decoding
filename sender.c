@@ -28,18 +28,41 @@ int main(int argc, char **argv) // sender process
     //printf("%s\n", sh_key);
     //fflush(stdout);
 
+    
+
     // create message queue
-    key_t key = ftok(".", 'm');
+    key_t key = ftok(".", 'm');//For sender and senderchild
     int msgqid = msgget(key, IPC_CREAT | 0666);
     if (msgqid == -1) {
         perror("msgget");
         exit(-1);
     }
-    
+
     sprintf(keyString, "%d", key);
     sprintf(max_columns_send, "%d", max_columns);
 
+    //key_t msgqid = createMsgq('m');
+    key_t key2 = ftok(".", 's');
+    int msgqidSP = msgget(key2, 0666);
 
+    if (msgqidSP == -1) {
+        perror("msgget");
+        exit(-1);
+    }
+
+    struct message msgSP;
+    msgSP.type = 1;            
+    strcpy(msgSP.text, max_columns_send);
+    printf("msggggggggggggsp.text %s\n", msgSP.text);
+    fflush(stdout);
+
+    if (msgsnd(msgqidSP, &msgSP, sizeof(msgSP.text) - sizeof(long), 0) == -1) {//send column count to parent
+            perror("msgsnd");
+            exit(-1);
+        }
+
+    
+    
     
     for (int i = 0; i < max_columns; i++) // create sender children
     {
@@ -88,29 +111,33 @@ int main(int argc, char **argv) // sender process
         wait(NULL);
     }
 
+
+    kill(getppid(), SIGINT);
     int shmid = open_shmem();
     int semid = open_sem();
 
+   /* usleep(500000);
+    lock(semid);
     char* shared_data = (char *) shmat(shmid, NULL, 0);
     if (shared_data == (char *)(-1)) {
         perror("shmat");
         exit(1);
     }
     
-    lock(semid);
+
     for (int i = 0 ; i < max_columns; i++){
             char* message = shared_data + (i * 100);
             printf("Message %d: %s\n", i, message);
 
     }
     unlock(semid);
+    */
 
-    shmdt(shared_data); 
+   // kill();
+   // shmdt(shared_data);
 
-
-
-
-
+    while(1);
+    
 
     return 0;
 }

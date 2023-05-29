@@ -24,7 +24,7 @@ int open_sem(){
         perror("semget -- sim_system");
         exit(-1);
     }
-    printf("semaphore is opend\n");
+    //printf("semaphore is opend\n");
     return semid;
 
 }
@@ -45,6 +45,21 @@ void unlock(int semid)
         exit(1);
     }
 }
+
+int createMsgq(char u_char)
+{
+
+    key_t key = ftok(".", u_char);
+    int msgqid = msgget(key, 0666);
+
+    if (msgqid == -1) {
+        perror("msgget");
+        exit(-1);
+    }
+
+    return msgqid;
+}
+
 
 // set the text color to green
 void green() {
