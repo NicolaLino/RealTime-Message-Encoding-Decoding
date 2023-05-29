@@ -1,6 +1,6 @@
 G = gcc -g
 O = -o
-names = parent sender senderChild receiver
+names = parent sender senderChild receiver helper master_spy spy
 
 files:
 	$(G) parent.c $(O) parent

@@ -1,6 +1,12 @@
 #include "constants.h"
 #include "functions.h"
 
+int stopFlag = 0;
+
+void handleSignal(int signum) {
+    stopFlag = 1;
+}
+
 int main(int argc, char **argv)
 {
     printf("Spy process started\n");
@@ -23,8 +29,10 @@ int main(int argc, char **argv)
         exit(-1);
     }
 
-   int i = 0;
-    while(1)
+    signal(SIGUSR2, handleSignal);
+
+    int i = 0;
+    while(!stopFlag)
     {
         
         value = (int)(rand() % columns);

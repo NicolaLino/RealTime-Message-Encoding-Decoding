@@ -152,6 +152,7 @@ int main(int argc, char **argv)
         waitpid(helperPids[i], NULL, 0);
     }
     for (int i = 0; i < spies_count; i++) {
+        kill(spyPids[i], SIGUSR2);
         waitpid(spyPids[i], NULL, 0);
     }
     waitpid(senderPid, NULL, 0);
