@@ -129,6 +129,7 @@ int main(int argc, char **argv)
     // Wait for all child processes to complete
     for (int i = 0; i < helper_count; i++)
     {
+        kill(helperPids[i], SIGUSR1);
         waitpid(helperPids[i], NULL, 0);
     }
     for (int i = 0; i < spies_count; i++) {

@@ -159,7 +159,7 @@ void resetColor()
     fflush(stdout);
 }
 
-char *encodeMessage(char message[][MAX_MSG_SIZE], int column)
+char *encodeMessage(char *message, int column)
 {
     char *encodedMessage = malloc((strlen(message) + 1) * sizeof(char)); // Allocate memory for encoded message
     encodedMessage[0] = '\0';                                            // Initialize encodedMessage as an empty string
