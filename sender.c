@@ -107,9 +107,10 @@ int main(int argc, char **argv) // sender process
 
     shmdt(shared_data); 
 
-
-
-
+    // wait for all children to finish
+    for (int i = 0; i < max_columns; i++) {
+        wait(NULL);
+    }
 
 
     return 0;
