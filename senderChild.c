@@ -12,12 +12,6 @@ void lock(int);
 void unlock(int);
 char *decodeMessage(char *);
 
-struct message
-{
-    long type;               // Message type
-    char text[MAX_MSG_SIZE]; // Message data
-};
-
 key_t key;
 int shmkey;
 int Index;
@@ -55,6 +49,7 @@ int main(int argc, char **argv) // sender child process
     // printf("Child process %d received message: %s\n", getpid(), msg.text);
     char *encodedMessage = encodeMessage(msg.text, column_number);
 
+    usleep(300000);
     lock(semid);
 
     shared_data = (char *)shmat(shmid, NULL, 0);
@@ -77,13 +72,11 @@ int main(int argc, char **argv) // sender child process
         exit(-1);
     }
 
-
     //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     // decode message process done like this to avoid errors
     // char *decodedMessage = decodeMessage(encodedMessage);
     // printf("Child process %d Decoded message: %s\n", getpid(), decodedMessage);
     //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 
     return 0;
 }
@@ -128,16 +121,16 @@ void validateInput(int argc, char **argv)
 }
 
 char *encodeMessage(char *message, int column)
-{   
+{
     char *encodedMessage = malloc((strlen(message) + 1) * sizeof(char)); // Allocate memory for encoded message
-    encodedMessage[0] = '\0';                                           // Initialize encodedMessage as an empty string
-    
+    encodedMessage[0] = '\0';                                            // Initialize encodedMessage as an empty string
+
     // Add the column number to the encoded message
     char column_number[10];
     sprintf(column_number, "%d ", column);
     strcat(encodedMessage, column_number);
-    
-    char *token = strtok(message, " ");                                 // Get the first token (word)
+
+    char *token = strtok(message, " "); // Get the first token (word)
     while (token != NULL)
     {
         int message_length = strlen(token);
@@ -145,11 +138,13 @@ char *encodeMessage(char *message, int column)
         char *encodedWord = malloc((message_length + 1) * sizeof(char)); // Allocate memory for encoded word
         encodedWord[0] = '\0';                                           // Initialize encodedWord as an empty string
         int number = atoi(token);
-        if (number){
+        if (number)
+        {
             number = 1000000 - number;
             sprintf(encodedWord, "%d", number);
         }
-        else{
+        else
+        {
             for (int i = 0; i < message_length; i++)
             {
                 if (token[i] >= 'a' && token[i] <= 'z')
@@ -185,7 +180,9 @@ char *encodeMessage(char *message, int column)
                 else if (token[i] == '%')
                 {
                     encodedWord[i] = '6';
-                }else{
+                }
+                else
+                {
                     encodedWord[i] = token[i];
                 }
             }
@@ -193,13 +190,12 @@ char *encodeMessage(char *message, int column)
         }
         strcat(encodedMessage, encodedWord);
         strcat(encodedMessage, " ");
-        free(encodedWord); // Free memory allocated for encoded word
+        free(encodedWord);         // Free memory allocated for encoded word
         token = strtok(NULL, " "); // Get the next token (word)
     }
     encodedMessage[strlen(encodedMessage) - 1] = '\0'; // Remove the last space
     return encodedMessage;
 }
-
 
 char *decodeMessage(char *encodedMessage)
 {
@@ -281,7 +277,7 @@ char *decodeMessage(char *encodedMessage)
         decodedMessage[decodedLength] = ' ';
         decodedLength++;
 
-        free(decodedWord); // Free the memory allocated for decodedWord
+        free(decodedWord);         // Free the memory allocated for decodedWord
         token = strtok(NULL, " "); // Get the next token (encoded word)
     }
 

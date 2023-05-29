@@ -17,7 +17,6 @@ int main(int argc, char **argv)
     char *sharedMemory;
     int columnNumber = atoi(argv[2]);
 
-    printf("====================Helper process %d started\n", getpid());
     printf("argv[1] = %s\n", argv[1]);
     shmid = shmget(atoi(argv[1]), 0, 0);
     if (shmid == -1)

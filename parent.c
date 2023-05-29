@@ -12,6 +12,8 @@ union semun
 
 int createSharedMemory();
 int createSemaphore();
+void handler1();
+// int CreateMsgq(char u_char);
 
 int helper_count = 2; // number of helper processes
 int spies_count = 2;  // number of spies processes
@@ -21,6 +23,17 @@ int main(int argc, char **argv)
 
     int shmid = createSharedMemory();
     int semid = createSemaphore();
+    // int msgQPS = createMsgq('s');//msg queue to send between sender and parent
+
+    key_t key = ftok(".", 's'); // For parent and sender
+    int msgQPS = msgget(key, IPC_CREAT | 0666);
+
+    if (msgQPS == -1)
+    {
+        perror("msgget");
+        exit(-1);
+    }
+
     char shm_key[20];
     sprintf(shm_key, "%d", key);
 
@@ -34,8 +47,20 @@ int main(int argc, char **argv)
     {
         execl("./sender", "sender", shm_key, NULL);
         perror("execl");
-
     }
+
+    signal(SIGINT, handler1);
+    pause();
+
+    struct message msg;
+    if (msgrcv(msgQPS, &msg, sizeof(msg.text), 1, 0) == -1)
+    {
+        perror("msgrcv");
+        exit(-1);
+    }
+
+    // printf("MAX columns is %s", msg.text);
+    // fflush(stdout);
 
     // Fork the helper processes
     pid_t helperPids[helper_count];
@@ -44,11 +69,7 @@ int main(int argc, char **argv)
         helperPids[i] = fork();
         if (helperPids[i] == 0)
         {
-            int columnNumber = 5;
-            char columnNumberStr[20];
-            sprintf(columnNumberStr, "%d", columnNumber);
-            printf("columnNumberStr = %s\n", columnNumberStr);
-            execl("./helper", "helper",shm_key, columnNumberStr,  NULL);
+            execl("./helper", "helper", shm_key, msg.text, NULL);
             perror("helper execl");
             exit(0);
         }
@@ -99,7 +120,7 @@ int main(int argc, char **argv)
     }
     else if (receiverPid == 0)
     {
-        execl("./receiver", "receiver", shm_key, NULL);
+        execl("./receiver", "receiver", shm_key, msg.text, NULL);
     }
 
     // Wait for all child processes to complete
@@ -156,6 +177,11 @@ int createSemaphore()
     }
     printf("semaphore is created in parent\n");
     return semid;
+}
+
+void handler1()
+{
+    printf("Shared Memory is full and ready!\n");
 }
 
 /*

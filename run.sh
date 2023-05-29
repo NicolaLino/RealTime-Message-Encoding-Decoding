@@ -15,5 +15,4 @@ gcc -g senderChild.c -o senderChild
 gcc -g sender.c -o sender
 gcc -g parent.c -o parent
 
-
 ./parent
