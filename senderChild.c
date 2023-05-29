@@ -6,7 +6,7 @@
 
 int open_shmem();
 void validateInput(int, char **);
-char *encodeMessage(char *, int);
+//char *encodeMessage(char *, int);
 int open_sem();
 void lock(int);
 void unlock(int);

@@ -25,34 +25,40 @@ int main(int argc, char **argv) // sender process
     int i = 0;
     srand(time(0) * 5.333 * getpid()); // to make it more random
 
-    while (checkColumns(bitmap, columns) == 0)
+    while (!checkColumns(bitmap, columns))
     {
-
+        //Generate a random value(index)
         value = (int)(rand() % columns);
 
+        //If colmn is already read, then get another index
         if (bitmap[value] == 1)
         {
             continue;
         }
 
+        //set column to read
         bitmap[value] = 1;
 
+        //lock with semaphore
         usleep(600000);
         lock(semid);
-        char *shared_data = (char *)shmat(shmid, NULL, 0);
-        if (shared_data == (char *)(-1))
-        {
-            perror("shmat");
-            exit(1);
-        }
+
+        //Read from the shared memory
+        char *shared_data = attachSharedMemory(shmid);
 
         printf("String received from shared memory in reciever: %s\n", shared_data + (value * 100));
         strcpy(arrange[value], shared_data + (value * 100));
+        char *decode = decodeMessage(arrange[value]);
+        strcpy(arrange[value], decode);
 
+
+        //unlock
         unlock(semid);
         shmdt(shared_data);
     }
 
+
+    ColumntoRow(arrange, columns);
     writeFile(arrange, columns);
 
     for (int i = 0; i < columns; i++)
@@ -63,7 +69,6 @@ int main(int argc, char **argv) // sender process
 
     return 0;
 }
-
 
 int checkColumns(int arr[], int columns)
 {

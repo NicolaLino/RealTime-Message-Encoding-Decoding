@@ -4,6 +4,7 @@
 #include "header.h"
 #include "constants.h"
 
+
 char *attachSharedMemory(int shmid)
 {
     char *sharedMemory;
@@ -68,7 +69,7 @@ int open_sem()
         perror("semget -- sim_system");
         exit(-1);
     }
-    printf("Semaphore is opened\n");
+    //printf("Semaphore is opened\n");
     // Return the semaphore identifier
     return semid;
 }
@@ -159,7 +160,7 @@ void resetColor()
     fflush(stdout);
 }
 
-char *encodeMessage(char *message, int column)
+char *encodeMessage(char message[][MAX_MSG_SIZE], int column)
 {
     char *encodedMessage = malloc((strlen(message) + 1) * sizeof(char)); // Allocate memory for encoded message
     encodedMessage[0] = '\0';                                            // Initialize encodedMessage as an empty string
@@ -334,5 +335,71 @@ char *decodeMessage(char *encodedMessage)
 
     return decodedMessage;
 }
+
+void ColumntoRow(char arrange[][MAX_MSG_SIZE], int columns)
+{
+
+    char *temp = (char *)malloc(MAX_MSG_SIZE * sizeof(char));
+    int size = 0;
+    char array[MAX_MSG_SIZE][MAX_MSG_SIZE];
+
+    for (int i = 0; i < MAX_MSG_SIZE; i++) {
+         memset(array[i], 0, MAX_MSG_SIZE);
+    }
+    int k = 0;
+    for (int i = 0; i < columns; i++) {
+        size = 0;
+        k = 0;
+        for (int j = 0; j < MAX_MSG_SIZE; j++) {
+
+            if (arrange[i][j] != ' ') {
+                temp[k] = arrange[i][j];
+                k++;
+
+            } else if (arrange[i][j] == ' '){
+                temp[k] = '\0';
+                k = 0;
+                strcat(array[size], temp);
+                strcat(array[size], " ");
+                size++;
+                memset(temp, 0, 40); // Reset temp to an empty string
+            }
+
+            if (arrange[i][j] == ' ' && arrange[i][j + 1] == ' ') {
+                strcat(array[size], " ");
+                k = 0;
+                strcat(array[size], " ");
+                size++;
+                memset(temp, 0, 40);
+                break;
+            }
+
+        }
+
+         if (strlen(temp) > 0) {
+            strcat(array[size], temp);
+            strcat(array[size], " ");
+            size++;
+            memset(temp, 0, MAX_MSG_SIZE);
+        }
+
+    }
+
+    for (int i = 0; i < MAX_MSG_SIZE; i++) {
+        if (array[i][0] != '\0') {
+          printf("%s\n", array[i]);
+        }
+        else
+        break;
+    }
+
+
+}
+
+
+
+
+
+
 
 #endif
