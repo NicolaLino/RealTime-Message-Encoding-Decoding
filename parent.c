@@ -10,8 +10,16 @@ union semun
     ushort *array;
 };
 
+struct message {
+    long type;            // Message type
+    char text[MAX_MSG_SIZE];  // Message data
+};
+
+
 int createShmem();
 int createSemaphore();
+void handler1();
+//int CreateMsgq(char u_char);
 
 
 int main(int argc, char **argv)
@@ -19,6 +27,16 @@ int main(int argc, char **argv)
 
     int shmid = createShmem();
     int semid = createSemaphore();
+    //int msgQPS = createMsgq('s');//msg queue to send between sender and parent
+
+    key_t key = ftok(".", 's');//For parent and sender
+    int msgQPS = msgget(key, IPC_CREAT | 0666);
+
+    if (msgQPS == -1) {
+        perror("msgget");
+        exit(-1);
+    }
+    
     char shm_key[20];
     sprintf(shm_key, "%d", key);
     
@@ -30,16 +48,33 @@ int main(int argc, char **argv)
         execl("./sender", "sender", shm_key, NULL);
     }
 
+
+    signal(SIGINT, handler1);
+    pause();
+
+    struct message msg;
+    if (msgrcv(msgQPS, &msg, sizeof(msg.text), 1, 0) == -1)
+    {
+        perror("msgrcv");
+        exit(-1);
+    }
+
+    printf("MAX columns is %s", msg.text);
+    fflush(stdout);
+    
+ 
     pid_t Receiver = fork(); // single receiver process
     if (Receiver == -1) {
         perror("fork");
         exit(-1);
     } else if (Receiver == 0) {
-        execl("./receiver", "receiver", shm_key, NULL);
+        execl("./receiver", "receiver", shm_key, msg.text, NULL);
     }
 
-    wait(NULL);
     
+    sleep(3);
+
+
     return 0;
 }
 
@@ -80,12 +115,9 @@ int createSemaphore()
 
 
 
-
-
-
-    
-
-
+void handler1(){
+    printf("Shared Memory is full and ready!\n");
+}
 
 
 /*

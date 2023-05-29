@@ -3,7 +3,7 @@ version: '3.5'
 # docker-compose -f docker-compose.yml up  --build -d
 # then open the docker desktop application and copy the container id
 # then open PwerShill
-# docker exec -it container_id bash
+# docker exec -it ac3948d62bed309444ca1e8bfe4c538e89e15163f1d61e01d07e63341db0fcb2 bash
 # to open console
 
 # you should download VNC server and viewer-client
