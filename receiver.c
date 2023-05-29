@@ -3,7 +3,7 @@
 #include "constants.h"
 
 int open_shmem(); // put in header (repeated two times)
-int checkColumns(int[], int);
+//int checkColumns(int[], int);
 void writeFile(char[][MAX_MSG_SIZE], int);
 
 int main(int argc, char **argv) // sender process
@@ -30,7 +30,7 @@ int main(int argc, char **argv) // sender process
         //Generate a random value(index)
         value = (int)(rand() % columns);
 
-        //If colmn is already read, then get another index
+        //If column is already read, then get another index
         if (bitmap[value] == 1)
         {
             continue;
@@ -57,7 +57,7 @@ int main(int argc, char **argv) // sender process
         shmdt(shared_data);
     }
 
-
+    //fix this to return
     ColumntoRow(arrange, columns);
     writeFile(arrange, columns);
 
@@ -70,7 +70,7 @@ int main(int argc, char **argv) // sender process
     return 0;
 }
 
-int checkColumns(int arr[], int columns)
+/*int checkColumns(int arr[], int columns)
 {
 
     for (int i = 0; i < columns; i++)
@@ -80,7 +80,7 @@ int checkColumns(int arr[], int columns)
     }
 
     return 1;
-}
+}*/
 
 void writeFile(char arrange[][MAX_MSG_SIZE], int columns)
 {

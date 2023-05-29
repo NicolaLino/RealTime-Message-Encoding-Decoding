@@ -26,7 +26,8 @@ int main(int argc, char **argv)
     int semid = createSemaphore();
     // int msgQPS = createMsgq('s');//msg queue to send between sender and parent
 
-    key_t key = ftok(".", 's'); // For parent and sender
+    // For parent and sender
+    key_t key = ftok(".", 's'); 
     int msgQPS = msgget(key, IPC_CREAT | 0666);
 
     if (msgQPS == -1)
@@ -34,6 +35,16 @@ int main(int argc, char **argv)
         perror("msgget");
         exit(-1);
     }
+
+    // For spies and master-spy
+    key_t keySpy = ftok(".", 'y'); 
+    int msgqSpy = msgget(keySpy, IPC_CREAT | 0666);
+    if (msgqSpy == -1)
+    {
+        perror("msgget");
+        exit(-1);
+    }
+
 
     char shm_key[20];
     sprintf(shm_key, "%d", key);

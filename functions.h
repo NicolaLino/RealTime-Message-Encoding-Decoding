@@ -4,7 +4,6 @@
 #include "header.h"
 #include "constants.h"
 
-
 char *attachSharedMemory(int shmid)
 {
     char *sharedMemory;
@@ -53,7 +52,7 @@ int open_shmem()
         exit(-2);
     }
     // Return the shared memory identifier
-    return shmid; 
+    return shmid;
 }
 
 int open_sem()
@@ -116,6 +115,18 @@ void removeSemaphore(int seed)
     }
 
     printf("Semaphore is removed\n");
+}
+
+int checkColumns(int arr[], int columns)
+{
+
+    for (int i = 0; i < columns; i++)
+    {
+        if (arr[i] == 0)
+            return 0;
+    }
+
+    return 1;
 }
 
 // set the text color to green
@@ -342,29 +353,38 @@ void ColumntoRow(char arrange[][MAX_MSG_SIZE], int columns)
     int size = 0;
     char array[MAX_MSG_SIZE][MAX_MSG_SIZE];
 
-    for (int i = 0; i < MAX_MSG_SIZE; i++) {
-         memset(array[i], 0, MAX_MSG_SIZE);
+    for (int i = 0; i < MAX_MSG_SIZE; i++)
+    {
+        memset(array[i], 0, MAX_MSG_SIZE);
     }
     int k = 0;
-    for (int i = 0; i < columns; i++) {
+    for (int i = 0; i < columns; i++)
+    {
         size = 0;
         k = 0;
-        for (int j = 0; j < MAX_MSG_SIZE; j++) {
+        for (int j = 0; j < MAX_MSG_SIZE; j++)
+        {
 
-            if (arrange[i][j] != ' ') {
+            if (arrange[i][j] != ' ')
+            {
                 temp[k] = arrange[i][j];
                 k++;
-
-            } else if (arrange[i][j] == ' '){
+            }
+            else if (arrange[i][j] == ' ')
+            {
                 temp[k] = '\0';
                 k = 0;
-                strcat(array[size], temp);
-                strcat(array[size], " ");
+                if (strcmp(temp, "Alright") != 0)
+                {
+                    strcat(array[size], temp);
+                    strcat(array[size], " ");
+                }
                 size++;
                 memset(temp, 0, 40); // Reset temp to an empty string
             }
 
-            if (arrange[i][j] == ' ' && arrange[i][j + 1] == ' ') {
+            if (arrange[i][j] == ' ' && arrange[i][j + 1] == ' ')
+            {
                 strcat(array[size], " ");
                 k = 0;
                 strcat(array[size], " ");
@@ -372,33 +392,29 @@ void ColumntoRow(char arrange[][MAX_MSG_SIZE], int columns)
                 memset(temp, 0, 40);
                 break;
             }
-
         }
 
-         if (strlen(temp) > 0) {
-            strcat(array[size], temp);
-            strcat(array[size], " ");
+        if (strlen(temp) > 0)
+        {
+            if (strcmp(temp, "Alright") != 0)
+                {
+                    strcat(array[size], temp);
+                    strcat(array[size], " ");
+                }
             size++;
             memset(temp, 0, MAX_MSG_SIZE);
         }
-
     }
 
-    for (int i = 0; i < MAX_MSG_SIZE; i++) {
-        if (array[i][0] != '\0') {
-          printf("%s\n", array[i]);
+    for (int i = 0; i < MAX_MSG_SIZE; i++)
+    {
+        if (array[i][0] != '\0')
+        {
+            printf("%s\n", array[i]);
         }
         else
-        break;
+            break;
     }
-
-
 }
-
-
-
-
-
-
 
 #endif
