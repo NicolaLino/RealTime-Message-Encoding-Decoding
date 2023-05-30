@@ -251,7 +251,7 @@ char *encodeMessage(char *message, int column)
         }
         strcat(encodedMessage, encodedWord);
         strcat(encodedMessage, " ");
-        free(encodedWord);         // Free memory allocated for encoded word
+        //free(encodedWord);         // Free memory allocated for encoded word
         token = strtok(NULL, " "); // Get the next token (word)
     }
     encodedMessage[strlen(encodedMessage) - 1] = '\0'; // Remove the last space
@@ -326,9 +326,8 @@ char *decodeMessage(char *encodedMessage)
             decodedWord[message_length] = '\0'; // Add null-terminator to the decoded word
         }
 
-        // Reallocate memory for decodedMessage
         size_t decodedWordLength = strlen(decodedWord);
-        decodedMessage = realloc(decodedMessage, (decodedLength + decodedWordLength + 1) * sizeof(char));
+        decodedMessage = realloc(decodedMessage, (decodedLength + decodedWordLength + 2) * sizeof(char));
 
         // Concatenate decodedWord to decodedMessage
         strcpy(decodedMessage + decodedLength, decodedWord);
@@ -338,7 +337,7 @@ char *decodeMessage(char *encodedMessage)
         decodedMessage[decodedLength] = ' ';
         decodedLength++;
 
-        free(decodedWord);         // Free the memory allocated for decodedWord
+        //free(decodedWord);         // Free the memory allocated for decodedWord
         token = strtok(NULL, " "); // Get the next token (encoded word)
     }
 
@@ -350,7 +349,7 @@ char *decodeMessage(char *encodedMessage)
     else
     {
         // If the decoded message is empty, free the memory and set decodedMessage to NULL
-        free(decodedMessage);
+        //free(decodedMessage);
         decodedMessage = NULL;
     }
 
@@ -438,7 +437,7 @@ char ** ColumntoRow(char arrange[][MAX_MSG_SIZE], int columns, int* maxsize)
             break;
     }
 
-    free(temp); // Free dynamically allocated memory
+    //free(temp); // Free dynamically allocated memory
     return output; // No need to return output since it's modified through a pointer
 }
 
