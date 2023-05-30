@@ -4,7 +4,7 @@
 
 int open_shmem(); // put in header (repeated two times)
 // int checkColumns(int[], int);
-void writeFile(char**, int, int, int);
+//void writeFile(char**, int, int, int);
 
 int main(int argc, char **argv) // sender process
 {
@@ -34,6 +34,7 @@ int main(int argc, char **argv) // sender process
         // If column is already read, then get another index
         if (bitmap[value] == 1)
         {
+            
             continue;
         }
 
@@ -62,17 +63,19 @@ int main(int argc, char **argv) // sender process
     int maxsize = 0; // Declare maxsize variable
     //char** output = ColumntoRow(arrange, columns, &maxsize);
 
-   // writeFile(output, columns, maxsize);
-    printf("MAXXXXXX SIZE : %d\n\n\n\n\n", maxsize);
+    // writeFile(output, columns, maxsize);
+    //printf("MAXXXXXX SIZE : %d\n\n\n\n\n", maxsize);
     char** output = ColumntoRow(arrange, columns, &maxsize);
 
-    writeFile(output, columns, maxsize, rows);
+    writeFile(output, columns, maxsize, rows, "receiver.txt");
 
     for (int i = 0; i < rows; i++)
     {
         printf("%s\n", output[i]);
         fflush(stdout);
     }
+
+    kill(getppid(), SIGUSR2);
 
 
     return 0;
@@ -90,7 +93,7 @@ int main(int argc, char **argv) // sender process
     return 1;
 }*/
 
-void writeFile(char **arrange, int columns, int maxsize, int rows)
+/*void writeFile(char **arrange, int columns, int maxsize, int rows)
 {
     // Rest of the code remains the same
     FILE *file = fopen("receiver.txt", "w");
@@ -110,7 +113,7 @@ void writeFile(char **arrange, int columns, int maxsize, int rows)
     }
 
     fclose(file);
-}
+}*/
 
 /*
                         --ToDo List--

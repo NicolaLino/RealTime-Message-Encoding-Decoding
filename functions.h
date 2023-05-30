@@ -419,8 +419,7 @@ char ** ColumntoRow(char arrange[][MAX_MSG_SIZE], int columns, int* maxsize)
         {
             output[i] = (char*)malloc(MAX_MSG_SIZE * sizeof(char));
             strcpy(output[i], array[i]);
-            printf("%s\n", array[i]);
-            printf("last row %d %s\n\n\n", maxSize ,array[maxSize - 1]);
+        
         }
         else
             break;
@@ -429,6 +428,26 @@ char ** ColumntoRow(char arrange[][MAX_MSG_SIZE], int columns, int* maxsize)
     free(temp); // Free dynamically allocated memory
     return output; // No need to return output since it's modified through a pointer
 }
+
+void writeFile(char **arrange, int columns, int maxsize, int rows, const char* filename)
+{
+    FILE *file = fopen(filename, "w");
+    if (file == NULL)
+    {
+        perror("Error opening file\n");
+        exit(1);
+    }
+
+    for (int i = 0; i < rows; i++)
+    {
+        fprintf(file, "%s\n", arrange[i]);
+    }
+
+    fclose(file);
+}
+
+
+
 
 
 #endif
