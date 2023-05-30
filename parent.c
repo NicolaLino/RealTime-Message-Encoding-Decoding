@@ -4,6 +4,9 @@
 
 key_t key;
 key_t semKey;
+clock_t master;
+clock_t receiver;
+clock_t start;
 union semun
 {
     int val;
@@ -27,8 +30,6 @@ void validateInput(int argc, char **argv)
     if (argc != 3)
     {
         printf("\nInsufficient number of arguments. Default values are selected:\n");
-        printf("helper_count = %d\n", helper_count);
-        printf("spies_count = %d\n", spies_count);
     }
     else
     {
@@ -49,10 +50,15 @@ void validateInput(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+    blue();
+    printf("|=================================== Operation Started ====================================|\n");
+    resetColor();
+
     validateInput(argc, argv);
     printf("Number of Helpers= %d\n", helper_count);
     printf("Number of Spies= %d\n", spies_count);
     sleep(2);
+    clock_t start = clock();
     // signal for masterspy
     signal(SIGUSR1, handler2);
     signal(SIGUSR2, handler3);
@@ -127,7 +133,7 @@ int main(int argc, char **argv)
         exit(-1);
     }
 
-    printf("MAX columns is %s\n\n", msg.text);
+    // printf("MAX columns is %s\n\n", msg.text);
     fflush(stdout);
 
     // Fork the helper processes
@@ -213,14 +219,19 @@ int main(int argc, char **argv)
 
     // Remove the semaphore
     removeSemaphore(SEM_SEED);
-
-    if (status)
+    if ((double)(receiver - master) < 0)
     {
-        printf("==================Operation Successful==================\n");
+        green();
+        printWordLine("Operation Successful");
+        resetColor();
+        fflush(stdout);
     }
     else
     {
-        printf("==================Operation Failed==================\n");
+        red();
+        printWordLine("Operation Failed");
+        resetColor();
+        fflush(stdout);
     }
     return 0;
 }
@@ -268,14 +279,22 @@ void handler1(int signal)
 
 void handler2() // master
 {
-    printf(" master spy is ready!\n");
-    exit(5);
+    green();
+    printf("Master spy is Finished!\n");
+    resetColor();
+    master = clock();
+    double masterSec = (double)(master - start) / CLOCKS_PER_SEC;
+    printf("Master Spy %f sec \n", masterSec);
     status = 0;
 }
 
 void handler3() // Reciever
-{
-    printf("Reciever is Finished!!\n");
-    exit(6);
+{   
+    purple();
+    printf("Receiver is Finished\n");
+    resetColor();
+    receiver = clock();
+    double RecieverSec = (double)(receiver - start) / CLOCKS_PER_SEC;
+    printf("Receiver takes %f sec \n", RecieverSec);
     status = 1;
 }

@@ -170,6 +170,17 @@ void resetColor()
     fflush(stdout);
 }
 
+
+void printLine()
+{
+    printf("|==========================================================================================|\n");
+}
+
+void printWordLine(char* word)
+{
+    printf("|===================================== %s ======================================|\n", word);
+}
+
 char *encodeMessage(char *message, int column)
 {
     char *encodedMessage = malloc((strlen(message) + 1) * sizeof(char)); // Allocate memory for encoded message

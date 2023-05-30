@@ -60,10 +60,10 @@ int main(int argc, char **argv) // sender child process
     }
 
     sleep(1);
-    printf("Child process %d Encoded message: %s\n", getpid(), encodedMessage);
+    printf("Child process [%d] Encoded message: [%s]\n", getpid(), encodedMessage);
     strcpy(shared_data + (Index * 100), encodedMessage);
 
-    printf("String read from shared memory: %s\n", shared_data + (Index * 100));
+    // printf("String read from shared memory: %s\n", shared_data + (Index * 100));
 
     unlock(semid);
     if (shmdt(shared_data) < 0) // deattach the shared memory

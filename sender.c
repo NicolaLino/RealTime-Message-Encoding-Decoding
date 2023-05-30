@@ -64,7 +64,8 @@ int main(int argc, char **argv) // sender process
         perror("msgsnd");
         exit(-1);
     }
-
+    blue();
+    printWordLine("Column");
     for (int i = 0; i < max_columns; i++) // create sender children
     {
         pid = fork();
@@ -95,8 +96,10 @@ int main(int argc, char **argv) // sender process
                 strcat(temp, " ");
             }
             strcpy(msg.text, temp);
+            red();
             printf("Column %d: %s\n", i + 1, msg.text);
-
+            resetColor();
+            
             if (msgsnd(msgqid, &msg, sizeof(msg.text), 0) == -1)
             {
                 perror("msgsnd");
@@ -105,7 +108,10 @@ int main(int argc, char **argv) // sender process
         }
     }
 
-    printf("\nEND\n");
+    // printf("\nEND\n");
+    blue();
+    printLine();
+    resetColor();
 
     for (int i = 0; i < max_columns; i++)
     {
@@ -197,7 +203,7 @@ char ***readFile()
             line[len - 1] = '0';
             line[len - 2] = ' ';
         }
-        printf("%s\n", line);
+        // printf("%s\n", line);
 
         int column_count = 0;
         char *token = strtok(line, " ");
@@ -228,7 +234,11 @@ char ***readFile()
 
     // Close the file
     fclose(file);
+    blue();
+    printf("|===================================== Input Message ======================================|\n");
+    resetColor();
 
+    red();
     for (int i = 0; i < rows; i++)
     {
         for (int j = 0; j < max_columns; j++)
@@ -237,6 +247,7 @@ char ***readFile()
         }
         printf("\n");
     }
+    resetColor();
 
     return output;
 }

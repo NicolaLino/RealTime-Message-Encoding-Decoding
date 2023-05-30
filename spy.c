@@ -9,7 +9,9 @@ int stopFlag = 0;
 
 int main(int argc, char **argv)
 {
+    yellow();
     printf("Spy process started\n");
+    resetColor();
     int shmid = open_shmem();
     int semid = open_sem();
     int columns = atoi(argv[2]);
@@ -41,7 +43,7 @@ int main(int argc, char **argv)
 
         char *shared_data = attachSharedMemory(shmid);
 
-        printf("String received from shared memory in Spy: %s\n", shared_data + (value * 100));
+        // printf("String received from shared memory in Spy: %s\n", shared_data + (value * 100));
 
         msgSP.type = 1;
         strcpy(msgSP.text, shared_data + (value * 100) );
@@ -51,8 +53,8 @@ int main(int argc, char **argv)
                 exit(-1);
             }
             else{
-                printf("msg sent from spy is: %s\n", msgSP.text);
-                fflush(stdout);
+                // printf("msg sent from spy is: %s\n", msgSP.text);
+                // fflush(stdout);
             }
         
 

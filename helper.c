@@ -30,13 +30,13 @@ int main(int argc, char **argv)
     int semid = open_sem();
 
     // signal(SIGUSR1, handleSignal);
-
+    printf("Helper %d is running\n", getpid());
     
     while (!stopFlag) {
         int sleepTime = rand() % 5 + 1;
         sleep(sleepTime);
         // lock(semid);        
-        printf("Helper %d is running\n", getpid());
+        
         fflush(stdout);
         char *sharedMemory = attachSharedMemory(shmid);
         // Generate random locations for swapping

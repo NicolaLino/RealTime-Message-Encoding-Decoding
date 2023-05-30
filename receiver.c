@@ -22,7 +22,7 @@ int main(int argc, char **argv) // sender process
     memset(read, 0x0, sizeof(read));
     memset(bitmap, 0x0, sizeof(bitmap));
 
-    printf("Im in reciever\n");
+    // printf("Im in reciever\n");
     int i = 0;
     srand(time(0) * 5.333 * getpid()); // to make it more random
 
@@ -48,10 +48,14 @@ int main(int argc, char **argv) // sender process
         // Read from the shared memory
         char *shared_data = attachSharedMemory(shmid);
 
-        printf("String received from shared memory in reciever: %s\n", shared_data + (value * 100));
+        // printf("String received from shared memory in reciever: %s\n", shared_data + (value * 100));
         strcpy(arrange[value], shared_data + (value * 100));
         char *decode = decodeMessage(arrange[value]);
         strcpy(arrange[value], decode);
+        green();
+        printf("Decoded String ==============> [%s]\n", arrange[value]);   
+        resetColor();
+        
 
         // unlock
         unlock(semid);
@@ -68,11 +72,19 @@ int main(int argc, char **argv) // sender process
 
     writeFile(output, columns, maxsize, rows, "receiver.txt");
 
+    blue();
+    printWordLine("receiver");
+    resetColor();
+    green();
     for (int i = 0; i < rows; i++)
     {
         printf("%s\n", output[i]);
         fflush(stdout);
     }
+    resetColor();   
+    blue();
+    printLine();
+    resetColor();
 
     kill(getppid(), SIGUSR2);
 
