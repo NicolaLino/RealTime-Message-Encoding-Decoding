@@ -8,7 +8,9 @@ int main(int argc, char **argv)
     
     struct message msg;
     int columns = atoi(argv[2]);
+    int rows = atoi(argv[3]);
     int bitmap[columns];
+    char arrange[columns][MAX_MSG_SIZE];
     memset(bitmap, 0x0, sizeof(bitmap));
     
     key_t key2 = ftok(".", 'y');
@@ -38,16 +40,39 @@ int main(int argc, char **argv)
             continue;
         }
 
+
+
         //set column to read
         bitmap[value] = 1;
         printf("Message recieved in Master Spy %s\n",msg.text);
-        fflush(stdout);
-        
+        fflush(stdout); 
+        strcpy(arrange[value], msg.text);
+        char *decode = decodeMessage(arrange[value]);
+        strcpy(arrange[value], decode);   
+        printf("Decoded String %s\n", arrange[value]);   
 
     }
 
+    int maxsize = 0;
+    char** output = ColumntoRow(arrange, columns, &maxsize);
+
+    writeFile(output, columns, maxsize, rows, "spy.txt");
+
+    for (int i = 0; i < rows; i++)
+    {
+        printf("%s\n", output[i]);
+        fflush(stdout);
+    }
+
+
+
+
     printf("GOT ALL COLUMNS IN MASTER_SPY :(\n");
     fflush(stdout);
+
+
+
+    kill(getppid(), SIGUSR1);
 
 
 

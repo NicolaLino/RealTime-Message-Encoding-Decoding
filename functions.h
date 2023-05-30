@@ -430,5 +430,25 @@ char ** ColumntoRow(char arrange[][MAX_MSG_SIZE], int columns, int* maxsize)
     return output; // No need to return output since it's modified through a pointer
 }
 
+void writeFile(char **arrange, int columns, int maxsize, int rows, const char* filename)
+{
+    FILE *file = fopen(filename, "w");
+    if (file == NULL)
+    {
+        perror("Error opening file\n");
+        exit(1);
+    }
+
+    for (int i = 0; i < rows; i++)
+    {
+        fprintf(file, "%s\n", arrange[i]);
+    }
+
+    fclose(file);
+}
+
+
+
+
 
 #endif
