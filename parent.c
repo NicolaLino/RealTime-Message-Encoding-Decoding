@@ -13,31 +13,26 @@ union semun
 
 int createSharedMemory();
 int createSemaphore();
-void handler1();
-// int CreateMsgq(char u_char);
+void handler1(int signal);
 
 int helper_count = 2; // number of helper processes
-int spies_count = 2;  // number of spies processes
+int spies_count = 2;  // number of spy processes
 
 int main(int argc, char **argv)
 {
     char columns[3];
     int shmid = createSharedMemory();
     int semid = createSemaphore();
-    // int msgQPS = createMsgq('s');//msg queue to send between sender and parent
 
-    // For parent and sender
-    key_t key = ftok(".", 's'); 
+    key_t key = ftok(".", 's'); // For parent and sender
     int msgQPS = msgget(key, IPC_CREAT | 0666);
-
     if (msgQPS == -1)
     {
         perror("msgget");
         exit(-1);
     }
 
-    // For spies and master-spy
-    key_t keySpy = ftok(".", 'y'); 
+    key_t keySpy = ftok(".", 'y'); // For spies and master-spy
     int msgqSpy = msgget(keySpy, IPC_CREAT | 0666);
     if (msgqSpy == -1)
     {
@@ -45,11 +40,25 @@ int main(int argc, char **argv)
         exit(-1);
     }
 
-
     char shm_key[20];
     sprintf(shm_key, "%d", key);
     char sem_key[20];
     sprintf(sem_key, "%d", semKey);
+
+    pid_t openglPID = fork();
+    switch (openglPID)
+    {
+    case -1: // failed to create opengl id
+        exit(-1);
+        break;
+
+    case 0: // currently in child
+        execl("./opengl", "OpenGL", NULL);
+        break;
+    default:
+        sleep(2); // wait a bit for the opengl to run
+        break;
+    }
 
     pid_t senderPid = fork(); // single sender process
     if (senderPid == -1)
@@ -61,6 +70,7 @@ int main(int argc, char **argv)
     {
         execl("./sender", "sender", shm_key, NULL);
         perror("execl");
+        exit(1);
     }
 
     signal(SIGINT, handler1);
@@ -80,7 +90,6 @@ int main(int argc, char **argv)
         exit(-1);
     }
 
-
     printf("MAX columns is %s\n\n", msg.text);
     fflush(stdout);
 
@@ -93,7 +102,7 @@ int main(int argc, char **argv)
         {
             execl("./helper", "helper", columns, shm_key, sem_key, NULL);
             perror("helper execl");
-            exit(0);
+            exit(1);
         }
         else if (helperPids[i] == -1)
         {
@@ -102,7 +111,7 @@ int main(int argc, char **argv)
         }
     }
 
-    //Fork the spy processes
+    // Fork the spy processes
     pid_t spyPids[spies_count];
     for (int i = 0; i < spies_count; i++)
     {
@@ -111,16 +120,16 @@ int main(int argc, char **argv)
         {
             execl("./spy", "spy", shm_key, columns, NULL);
             perror("spy execl");
-            exit(0);
+            exit(1);
         }
         else if (spyPids[i] == -1)
         {
-            perror("fork");
+            perror("spy fork");
             exit(1);
         }
     }
 
-    //Fork the master spy process
+    // Fork the master spy process
     pid_t masterSpyPid = fork();
     if (masterSpyPid == 0)
     {
@@ -143,21 +152,25 @@ int main(int argc, char **argv)
     else if (receiverPid == 0)
     {
         execl("./receiver", "receiver", shm_key, columns, msg.text, NULL);
+        perror("execl");
+        exit(1);
     }
+    waitpid(receiverPid, NULL, 0);
+    waitpid(masterSpyPid, NULL, 0);
 
     // Wait for all child processes to complete
     for (int i = 0; i < helper_count; i++)
     {
-        kill(helperPids[i], SIGUSR1);
+        kill(helperPids[i], SIGKILL);
         waitpid(helperPids[i], NULL, 0);
     }
-    for (int i = 0; i < spies_count; i++) {
-        kill(spyPids[i], SIGUSR2);
+    for (int i = 0; i < spies_count; i++)
+    {
+        kill(spyPids[i], SIGKILL);
         waitpid(spyPids[i], NULL, 0);
     }
-    waitpid(senderPid, NULL, 0);
-    waitpid(receiverPid, NULL, 0);
-    waitpid(masterSpyPid, NULL, 0);
+    //waitpid(senderPid, NULL, 0);
+    
 
     // Remove the shared memory segment
     deleteSharedMemory(shmid);
@@ -170,7 +183,6 @@ int main(int argc, char **argv)
 
 int createSharedMemory()
 {
-
     key = ftok(".", MEM_SEED);
     int shmid;
     if ((shmid = shmget(key, 100, IPC_CREAT | 0666)) == -1)
@@ -191,6 +203,7 @@ int createSemaphore()
         perror("semget -- sim_system");
         exit(-1);
     }
+
     /* Set the value of the semaphore to 1 */
     union semun arg;
     arg.val = 1;
@@ -199,74 +212,12 @@ int createSemaphore()
         perror("semctl");
         exit(-1);
     }
-    printf("semaphore is created in parent\n");
+
+    printf("Semaphore is created in parent\n");
     return semid;
 }
 
-void handler1()
+void handler1(int signal)
 {
     printf("Shared Memory is full and ready!\n");
 }
-
-/*
-parent process create these:
-
-single sender process:
-1) gets the message from an input file (e.g. sender.txt) that contains multiple lines -- DONE
-2) split the input file by column based on the blank character between words -- DONE
-3) should create as many children processes as needed depending on the number of columns in the file
-4) each child process, a column message must be sent containing all the words in that column.
-5) The columns should be of equal size.
-6) As such, if a column contains an empty string in any line, it should be replaced by the string “alright”.
-
-children processes of sender:
-1) each of them encode the column message that is passed to it before placing the encoded message in the shared memory
-
-encoding:
-    A) for the first column:
-1) each word in the string, we add 1 to the first character modulo 26, 2 to the second character modulo 26, etc.
-2) will place it in the first location in the shared memory.
-
-    B) For the second column
-1) each word in the string, we add 2 to the first character modulo 26, 4 to the second character modulo 26, etc
-2)  will place it in the second location in the shared memory
-
-    C) and so on
-    D) Special characters must be encoded as follows in PDF
-    E) Numbers are encoded as (1,000,000 - number)
-    F) Each encoded column must have a prefix or suffix added to it so that the receiver process is able to identify the column number correctly.
-
-
-user-defined number of helper processes:
-1) continuously swap the messages that are present in the shared memory to make it hard for spy processes to get all the columns of the file
-2) example, a particular helper process might at some point swap between the encoded messages in locations 3 & 10 of the shared memory
-
-Spy processes:
-1) Spy processes will continuously access the shared memory locations randomly to get the encoded messages before sending them to the master spy process
-
-single master spy process:
-1) tries to order the columns in the right order after getting them from the spy processes
-2) It will drop columns it already received.
-3) When the master spy is confident it got all the columns, it tries to decode the messages
-4)  decode the messages in a file called spy.txt before informing the parent process
-
-single receiver process:
-1) continuously access the shared memory locations randomly to get the encoded messages
-2) it will order the columns it gets in the right order and drops the columns it already received
-3) When it is confident it got all the columns, it tries to decode the messages in a file called receiver.txt before informing the parent process
-
-user-defined number of spy processes:
-1)
-2)
-3)
-
-The parent process decides if the receiver process was able to get the correct file
-from the sender before the master spy process. If true, then the operation is labeled
-a successful operation. Otherwise, it is labeled as a failed operation
-
-The simulation ends if any of the following is true:
-– The number of failed decoding operations by the receiver exceeds a user-defined
-threshold.
-– The number of successful decoding operations by the receiver exceeds a userdefined threshold.
-
-*/

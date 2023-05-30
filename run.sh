@@ -11,6 +11,8 @@ rm -f receiver
 rm -f helper
 rm -f spy
 rm -f master_spy
+
+gcc -o opengl opengl.c -lGL -lGLU -lglut -lm
 gcc -g spy.c -o spy
 gcc -g master_spy.c -o master_spy
 gcc -g receiver.c -o receiver

@@ -14,9 +14,9 @@ void swapMessages(char* sharedMemory, int columnNumber) {
     strcpy(&sharedMemory[location2 * 100], temp);
 }
 
-void handleSignal(int signum) {
-    stopFlag = 1;
-}
+// void handleSignal(int signum) {
+//     stopFlag = 1;
+// }
 
 int main(int argc, char **argv)
 {
@@ -29,13 +29,13 @@ int main(int argc, char **argv)
     int shmid = open_shmem();
     int semid = open_sem();
 
-    signal(SIGUSR1, handleSignal);
+    // signal(SIGUSR1, handleSignal);
 
     
     while (!stopFlag) {
         int sleepTime = rand() % 5 + 1;
         sleep(sleepTime);
-        lock(semid);        
+        // lock(semid);        
         printf("Helper %d is running\n", getpid());
         fflush(stdout);
         char *sharedMemory = attachSharedMemory(shmid);
@@ -47,11 +47,17 @@ int main(int argc, char **argv)
         swapMessages(sharedMemory, columnNumber);
 
 
-        unlock(semid);
+        // unlock(semid);
         // Detach from the shared memory
         if (shmdt(sharedMemory) == -1) {
             perror("shmdt");
             exit(1);
+        }
+
+        if(stopFlag) {
+            printf("Helper %d is terminating\n", getpid());
+            fflush(stdout);
+            exit(0);
         }
     }
 

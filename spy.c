@@ -3,9 +3,9 @@
 
 int stopFlag = 0;
 
-void handleSignal(int signum) {
-    stopFlag = 1;
-}
+// void handleSignal(int signum) {
+//     stopFlag = 1;
+// }
 
 int main(int argc, char **argv)
 {
@@ -29,19 +29,19 @@ int main(int argc, char **argv)
         exit(-1);
     }
 
-    signal(SIGUSR2, handleSignal);
+    // signal(SIGUSR2, handleSignal);
 
     int i = 0;
     while(!stopFlag)
     {
         
         value = (int)(rand() % columns);
-        usleep(70000);
+        sleep(1);
         lock(semid);
 
         char *shared_data = attachSharedMemory(shmid);
 
-        //printf("String received from shared memory in Spy: %s\n", shared_data + (value * 100));
+        printf("String received from shared memory in Spy: %s\n", shared_data + (value * 100));
 
         msgSP.type = 1;
         strcpy(msgSP.text, shared_data + (value * 100) );
@@ -58,6 +58,13 @@ int main(int argc, char **argv)
 
         unlock(semid);
         shmdt(shared_data);
+
+        if(stopFlag)
+        {
+            printf("Spy %d is terminating\n", getpid());
+            fflush(stdout);
+            exit(0);
+        }
     }
 
     return 0;

@@ -30,22 +30,23 @@ int main(int argc, char **argv)
         }
         
 
-        
+        int value = msg.text[0] - '0';
+        value = value - 1;
         //If column is already read, then get another index
-        if (bitmap[(int)(msg.text[0])] == 1)
+        if (bitmap[value] == 1)
         {
             continue;
         }
 
         //set column to read
-        bitmap[(int)(msg.text[0])] = 1;
+        bitmap[value] = 1;
         printf("Message recieved in Master Spy %s\n",msg.text);
         fflush(stdout);
         
 
     }
 
-    printf("GOT ALL COLUMNS IN MASTER_SPY :(");
+    printf("GOT ALL COLUMNS IN MASTER_SPY :(\n");
     fflush(stdout);
 
 
