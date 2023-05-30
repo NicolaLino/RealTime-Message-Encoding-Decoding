@@ -357,6 +357,7 @@ char *decodeMessage(char *encodedMessage)
     return decodedMessage;
 }
 
+
 char ** ColumntoRow(char arrange[][MAX_MSG_SIZE], int columns, int* maxsize)
 {
     char* temp = (char*)malloc(MAX_MSG_SIZE * sizeof(char));
