@@ -63,7 +63,6 @@ int main(int argc, char **argv) // sender process
     //char** output = ColumntoRow(arrange, columns, &maxsize);
 
    // writeFile(output, columns, maxsize);
-    printf("MAXXXXXX SIZE : %d\n\n\n\n\n", maxsize);
     char** output = ColumntoRow(arrange, columns, &maxsize);
 
     writeFile(output, columns, maxsize, rows);

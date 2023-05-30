@@ -1,4 +1,4 @@
-These errors typically occur when you misuse memory 
-allocation! and deallocation functions in C. 
-Here are a few common scenarios that can lead 
-to these errors, and how? to fix them 11 
+These errors typically misuse when you occur memory 
+allocation! and deallocation in C. functions 
+Here are a that common scenarios few can lead 
+to these errors, fix how? to and them 11 

@@ -12,7 +12,7 @@ rm -f helper
 rm -f spy
 rm -f master_spy
 
-gcc -o opengl opengl.c -lGL -lGLU -lglut -lm
+# gcc -o opengl opengl.c -lGL -lGLU -lglut -lm
 gcc -g spy.c -o spy
 gcc -g master_spy.c -o master_spy
 gcc -g receiver.c -o receiver
@@ -21,4 +21,4 @@ gcc -g senderChild.c -o senderChild
 gcc -g sender.c -o sender
 gcc -g parent.c -o parent
 
-./parent
+./parent $1 $2

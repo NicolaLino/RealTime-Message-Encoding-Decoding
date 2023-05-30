@@ -419,8 +419,8 @@ char ** ColumntoRow(char arrange[][MAX_MSG_SIZE], int columns, int* maxsize)
         {
             output[i] = (char*)malloc(MAX_MSG_SIZE * sizeof(char));
             strcpy(output[i], array[i]);
-            printf("%s\n", array[i]);
-            printf("last row %d %s\n\n\n", maxSize ,array[maxSize - 1]);
+            // printf("%s\n", array[i]);
+            // printf("last row %d %s\n\n\n", maxSize ,array[maxSize - 1]);
         }
         else
             break;

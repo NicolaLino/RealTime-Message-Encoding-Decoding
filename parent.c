@@ -11,15 +11,52 @@ union semun
     ushort *array;
 };
 
+int status; // determine the status of faliure or success
+
 int createSharedMemory();
 int createSemaphore();
 void handler1(int signal);
+void handler2();
+void handler3();
 
-int helper_count = 2; // number of helper processes
-int spies_count = 2;  // number of spy processes
+int helper_count = DEFAULT_HELPER_COUNT; // number of helper processes
+int spies_count = DEFAULT_SPIES_COUNT;   // number of spy processes
+
+void validateInput(int argc, char **argv)
+{
+    if (argc != 3)
+    {
+        printf("\nInsufficient number of arguments. Default values are selected:\n");
+        printf("helper_count = %d\n", helper_count);
+        printf("spies_count = %d\n", spies_count);
+    }
+    else
+    {
+
+        if (!(helper_count = atoi(argv[1])))
+        {
+            perror("\nError: The first argument must be an integer");
+            exit(-1);
+        }
+
+        if (!(spies_count = atoi(argv[2])))
+        {
+            perror("\nError: The second argument must be an integer");
+            exit(-1);
+        }
+    }
+}
 
 int main(int argc, char **argv)
 {
+    validateInput(argc, argv);
+    printf("Number of Helpers= %d\n", helper_count);
+    printf("Number of Spies= %d\n", spies_count);
+    sleep(2);
+    // signal for masterspy
+    signal(SIGUSR1, handler2);
+    signal(SIGUSR2, handler3);
+
     char columns[3];
     int shmid = createSharedMemory();
     int semid = createSemaphore();
@@ -45,20 +82,20 @@ int main(int argc, char **argv)
     char sem_key[20];
     sprintf(sem_key, "%d", semKey);
 
-    pid_t openglPID = fork();
-    switch (openglPID)
-    {
-    case -1: // failed to create opengl id
-        exit(-1);
-        break;
+    // pid_t openglPID = fork();
+    // switch (openglPID)
+    // {
+    // case -1: // failed to create opengl id
+    //     exit(-1);
+    //     break;
 
-    case 0: // currently in child
-        execl("./opengl", "OpenGL", NULL);
-        break;
-    default:
-        sleep(2); // wait a bit for the opengl to run
-        break;
-    }
+    // case 0: // currently in child
+    //     execl("./opengl", "OpenGL", NULL);
+    //     break;
+    // default:
+    //     sleep(2); // wait a bit for the opengl to run
+    //     break;
+    // }
 
     pid_t senderPid = fork(); // single sender process
     if (senderPid == -1)
@@ -133,7 +170,7 @@ int main(int argc, char **argv)
     pid_t masterSpyPid = fork();
     if (masterSpyPid == 0)
     {
-        execl("./master_spy", "master_spy", shm_key, columns, NULL);
+        execl("./master_spy", "master_spy", shm_key, columns, msg.text, NULL);
         perror("master_spy execl");
         exit(0);
     }
@@ -169,8 +206,7 @@ int main(int argc, char **argv)
         kill(spyPids[i], SIGKILL);
         waitpid(spyPids[i], NULL, 0);
     }
-    //waitpid(senderPid, NULL, 0);
-    
+    // waitpid(senderPid, NULL, 0);
 
     // Remove the shared memory segment
     deleteSharedMemory(shmid);
@@ -178,6 +214,14 @@ int main(int argc, char **argv)
     // Remove the semaphore
     removeSemaphore(SEM_SEED);
 
+    if (status)
+    {
+        printf("==================Operation Successful==================\n");
+    }
+    else
+    {
+        printf("==================Operation Failed==================\n");
+    }
     return 0;
 }
 
@@ -220,4 +264,18 @@ int createSemaphore()
 void handler1(int signal)
 {
     printf("Shared Memory is full and ready!\n");
+}
+
+void handler2() // master
+{
+    printf(" master spy is ready!\n");
+    exit(5);
+    status = 0;
+}
+
+void handler3() // Reciever
+{
+    printf("Reciever is Finished!!\n");
+    exit(6);
+    status = 1;
 }
