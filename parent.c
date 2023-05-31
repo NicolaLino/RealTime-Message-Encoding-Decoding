@@ -88,20 +88,34 @@ int main(int argc, char **argv)
     char sem_key[20];
     sprintf(sem_key, "%d", semKey);
 
-    // pid_t openglPID = fork();
-    // switch (openglPID)
-    // {
-    // case -1: // failed to create opengl id
-    //     exit(-1);
-    //     break;
+    key_t openGlKey = ftok(".", '9'); // For OpenGL
+    int msgOGL = msgget(openGlKey, IPC_CREAT | 0666);
+    if (msgOGL == -1)
+    {
+        perror("msgget");
+        exit(-1);
+    }
+    pid_t openglPID = fork();
+    switch (openglPID)
+    {
+    case -1: // failed to create opengl id
+        exit(-1);
+        break;
 
-    // case 0: // currently in child
-    //     execl("./opengl", "OpenGL", NULL);
-    //     break;
-    // default:
-    //     sleep(2); // wait a bit for the opengl to run
-    //     break;
-    // }
+    case 0: // currently in child
+        char count1_str[20];
+        char count2_str[20];
+        sprintf(count1_str, "%d", helper_count);
+        sprintf(count2_str, "%d", spies_count);
+        execl("./opengl", "OpenGL", count1_str, count2_str, NULL);
+        break;
+    default:
+        sleep(2); // wait a bit for the opengl to run
+        break;
+    }
+
+    // printf("Number of Helpers= %d\n", helper_count);
+    // printf("Number of Spies= %d\n", spies_count);
 
     pid_t senderPid = fork(); // single sender process
     if (senderPid == -1)
@@ -135,6 +149,16 @@ int main(int argc, char **argv)
 
     // printf("MAX columns is %s\n\n", msg.text);
     fflush(stdout);
+
+    // send number of columns to openGL
+    struct message msg1;
+    msg1.type = 1;
+    strcpy(msg1.text, columns);
+    if (msgsnd(msgOGL, &msg1, sizeof(msg1.text) - sizeof(long), 0) == -1)
+    { // send column count to parent
+        perror("msgsnd");
+        exit(-1);
+    }
 
     // Fork the helper processes
     pid_t helperPids[helper_count];
@@ -219,12 +243,22 @@ int main(int argc, char **argv)
 
     // Remove the semaphore
     removeSemaphore(SEM_SEED);
+    // send to opengl who won
+    struct message msg2;
+    msg2.type = 2;
+
     if ((double)(receiver - master) < 0)
     {
         green();
         printWordLine("Operation Successful");
         resetColor();
         fflush(stdout);
+        strcpy(msg2.text, "1");
+        if (msgsnd(msgOGL, &msg2, sizeof(msg2.text) - sizeof(long), 0) == -1)
+        { // send column count to parent
+            perror("msgsnd");
+            exit(-1);
+        }
     }
     else
     {
@@ -232,7 +266,15 @@ int main(int argc, char **argv)
         printWordLine("Operation Failed");
         resetColor();
         fflush(stdout);
+        strcpy(msg2.text, "0");
+        if (msgsnd(msgOGL, &msg2, sizeof(msg2.text) - sizeof(long), 0) == -1)
+        { // send column count to parent
+            perror("msgsnd");
+            exit(-1);
+        }
     }
+    sleep(10);
+    kill(openglPID, SIGKILL);
     return 0;
 }
 
@@ -289,7 +331,7 @@ void handler2() // master
 }
 
 void handler3() // Reciever
-{   
+{
     purple();
     printf("Receiver is Finished\n");
     resetColor();
