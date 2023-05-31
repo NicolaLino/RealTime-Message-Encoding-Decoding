@@ -273,7 +273,7 @@ int main(int argc, char **argv)
             exit(-1);
         }
     }
-    sleep(10);
+    sleep(20);
     kill(openglPID, SIGKILL);
     return 0;
 }

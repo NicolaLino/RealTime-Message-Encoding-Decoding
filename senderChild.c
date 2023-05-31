@@ -33,7 +33,7 @@ int main(int argc, char **argv) // sender child process
     if (msgqid == -1)
     {
         perror("msgget");
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 
     // Receive messages in the child process
@@ -41,7 +41,7 @@ int main(int argc, char **argv) // sender child process
     if (msgrcv(msgqid, &msg, sizeof(msg.text), getpid(), 0) == -1)
     {
         perror("msgrcv");
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
     sleep(2);
 
@@ -56,7 +56,7 @@ int main(int argc, char **argv) // sender child process
     if (shared_data == (char *)(-1))
     {
         perror("shmat");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     sleep(1);
@@ -69,7 +69,7 @@ int main(int argc, char **argv) // sender child process
     if (shmdt(shared_data) < 0) // deattach the shared memory
     {
         perror("shmdt");
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 
     //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -86,6 +86,7 @@ void validateInput(int argc, char **argv)
     if (argc != 5)
     {
         printf("\nNot enough Args!\n");
+        exit(EXIT_FAILURE);
     }
 
     else
@@ -93,29 +94,31 @@ void validateInput(int argc, char **argv)
         if (!(key = atoi(argv[1])))
         {
             perror("\nError: The first argument must be an integer");
-            exit(-1);
+            exit(EXIT_FAILURE);
         }
 
         if (!(shmkey = atoi(argv[2])))
         {
             perror("\nError: The second argument must be an integer");
-            exit(-3);
+            exit(EXIT_FAILURE);
         }
 
         if (!(Index = atoi(argv[3]) + 1))
         {
             perror("\nError: The third argument must be an integer");
-            exit(-4);
+            exit(EXIT_FAILURE);
         }
+        
         if (!(column_number = atoi(argv[3]) + 1))
         {
             perror("\nError: The third argument must be an integer");
-            exit(-4);
+            exit(EXIT_FAILURE);
         }
+        
         if (!(max_columns = atoi(argv[4])))
         {
             perror("\nError: The fourth argument must be an integer");
-            exit(-5);
+            exit(EXIT_FAILURE);
         }
     }
 }

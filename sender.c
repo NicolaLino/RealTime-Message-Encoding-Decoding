@@ -29,7 +29,7 @@ int main(int argc, char **argv) // sender process
     if (msgqid == -1)
     {
         perror("msgget");
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 
     sprintf(keyString, "%d", key);
@@ -43,7 +43,7 @@ int main(int argc, char **argv) // sender process
     if (msgqidSP == -1)
     {
         perror("msgget");
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 
     struct message msgSP;
@@ -55,14 +55,14 @@ int main(int argc, char **argv) // sender process
     if (msgsnd(msgqidSP, &msgSP, sizeof(msgSP.text) - sizeof(long), 0) == -1)
     { // send column count to parent
         perror("msgsnd");
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 
     strcpy(msgSP.text, max_rows);
     if (msgsnd(msgqidSP, &msgSP, sizeof(msgSP.text) - sizeof(long), 0) == -1)
     { // send column count to parent
         perror("msgsnd");
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
     blue();
     printWordLine("Column");
@@ -73,7 +73,7 @@ int main(int argc, char **argv) // sender process
         if (pid == -1) // Check for errors when forking child processes
         {
             printf("Error: Failed to fork child %d\n", i + 1);
-            exit(-1);
+            exit(EXIT_FAILURE);
         }
 
         else if (pid == 0) // Code executed in child process
@@ -103,7 +103,7 @@ int main(int argc, char **argv) // sender process
             if (msgsnd(msgqid, &msg, sizeof(msg.text), 0) == -1)
             {
                 perror("msgsnd");
-                exit(-1);
+                exit(EXIT_FAILURE);
             }
         }
     }
@@ -149,7 +149,7 @@ char ***readFile()
     if (file == NULL)
     {
         printf("Failed to open the file.\n");
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 
     char columns[MAX_LENGTH][MAX_LENGTH];
