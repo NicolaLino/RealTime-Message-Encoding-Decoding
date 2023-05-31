@@ -96,6 +96,8 @@ int main(int argc, char **argv)
         exit(-1);
     }
     pid_t openglPID = fork();
+    char count1_str[20];
+    char count2_str[20];
     switch (openglPID)
     {
     case -1: // failed to create opengl id
@@ -103,8 +105,6 @@ int main(int argc, char **argv)
         break;
 
     case 0: // currently in child
-        char count1_str[20];
-        char count2_str[20];
         sprintf(count1_str, "%d", helper_count);
         sprintf(count2_str, "%d", spies_count);
         execl("./opengl", "OpenGL", count1_str, count2_str, NULL);
