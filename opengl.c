@@ -160,7 +160,7 @@ void display()
     }
 
     char spiesText[10];
-    sprintf(spiesText, "%d", helpers);
+    sprintf(spiesText, "%d", spies);
         glColor3f(1.0, 0, 0);
     // Loop through each character of the `cntText` and display it
     for (int i = 0; i < strlen(spiesText); i++)
