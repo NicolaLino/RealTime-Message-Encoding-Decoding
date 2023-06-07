@@ -35,7 +35,7 @@ int main(int argc, char **argv)
     while (!stopFlag) {
         int sleepTime = rand() % 5 + 1;
         sleep(sleepTime);
-        // lock(semid);        
+        lock(semid);        
         
         fflush(stdout);
         char *sharedMemory = attachSharedMemory(shmid);
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
         swapMessages(sharedMemory, columnNumber);
 
 
-        // unlock(semid);
+        unlock(semid);
         // Detach from the shared memory
         if (shmdt(sharedMemory) == -1) {
             perror("shmdt");
