@@ -24,21 +24,6 @@ The system follows the following scenario:
     - The number of failed decoding operations by the receiver exceeds a user-defined threshold.
     - The number of successful decoding operations by the receiver exceeds a user-defined threshold.
 
-## 📝 To-Do List :pencil:
-
-- [ ] Implement the parent process to create necessary child processes.
-- [ ] Develop the sender process to retrieve and split the message into columns.
-- [ ] Implement child processes to encode column messages and place them in the shared memory.
-- [ ] Create helper processes to swap messages in the shared memory.
-- [ ] Develop spy processes to access and send encoded messages to the master spy process.
-- [ ] Implement the master spy process to order and decode received messages.
-- [ ] Create the receiver process to access and decode messages from the shared memory.
-- [ ] Develop the parent process to evaluate the success or failure of the operation.
-- [ ] Handle termination conditions to end the simulation.
-- [ ] Write unit tests to ensure the correctness of the implemented functionalities.
-- [ ] Update the README file with detailed instructions on how to run the system.
-- [ ] Write a comprehensive documentation describing the system's architecture, components, and functionality.
-
 ## 🤖 Tech Stack
 
 - Linux OS
@@ -51,59 +36,59 @@ The system follows the following scenario:
 
 # TODO List
 
-- [ ] Parent Process:
-  - [ ] Create shared memory for message exchange between processes.
-  - [ ] Create semaphores for synchronization and mutual exclusion.
-  - [ ] Create sender, receiver, master spy, helper, and spy processes.
-  - [ ] Wait for the receiver process to complete and determine the operation's success.
+- [x] Parent Process:
+  - [x] Create shared memory for message exchange between processes.
+  - [x] Create semaphores for synchronization and mutual exclusion.
+  - [x] Create sender, receiver, master spy, helper, and spy processes.
+  - [x] Wait for the receiver process to complete and determine the operation's success.
 
-- [ ] Sender Process:
-  - [ ] Read the message from the input file (sender.txt).
-  - [ ] Split the message into columns based on the blank character.
-  - [ ] Replace empty strings with "alright".
-  - [ ] Calculate the number of columns.
-  - [ ] Create child processes for each column and pass the column message to them.
-  - [ ] Encode the column message based on the specified rules.
-  - [ ] Place the encoded message in the shared memory.
+- [x] Sender Process:
+  - [x] Read the message from the input file (sender.txt).
+  - [x] Split the message into columns based on the blank character.
+  - [x] Replace empty strings with "alright".
+  - [x] Calculate the number of columns.
+  - [x] Create child processes for each column and pass the column message to them.
+  - [x] Encode the column message based on the specified rules.
+  - [x] Place the encoded message in the shared memory.
 
-- [ ] Child Processes (Column Encoding):
-  - [ ] Receive the column message from the sender process.
-  - [ ] Encode the message according to the given rules.
-  - [ ] Add the encoded message to the shared memory.
+- [x] Child Processes (Column Encoding):
+  - [x] Receive the column message from the sender process.
+  - [x] Encode the message according to the given rules.
+  - [x] Add the encoded message to the shared memory.
 
-- [ ] Helper Processes:
-  - [ ] Continuously swap the messages present in the shared memory to confuse spy processes.
-  - [ ] Generate random locations in the shared memory to perform swapping.
-  - [ ] Use semaphores to ensure mutual exclusion during swapping.
+- [x] Helper Processes:
+  - [x] Continuously swap the messages present in the shared memory to confuse spy processes.
+  - [x] Generate random locations in the shared memory to perform swapping.
+  - [x] Use semaphores to ensure mutual exclusion during swapping.
 
-- [ ] Spy Processes:
-  - [ ] Continuously access random locations in the shared memory.
-  - [ ] Retrieve the encoded messages and send them to the master spy process.
-  - [ ] Use semaphores to coordinate access to shared memory.
+- [x] Spy Processes:
+  - [x] Continuously access random locations in the shared memory.
+  - [x] Retrieve the encoded messages and send them to the master spy process.
+  - [x] Use semaphores to coordinate access to shared memory.
 
-- [ ] Master Spy Process:
-  - [ ] Receive encoded messages from spy processes.
-  - [ ] Order the columns in the correct order.
-  - [ ] Drop columns that are already received.
-  - [ ] Determine when all columns are received.
-  - [ ] Attempt to decode the messages in the spy.txt file.
-  - [ ] Inform the parent process of the decoding result.
+- [x] Master Spy Process:
+  - [x] Receive encoded messages from spy processes.
+  - [x] Order the columns in the correct order.
+  - [x] Drop columns that are already received.
+  - [x] Determine when all columns are received.
+  - [x] Attempt to decode the messages in the spy.txt file.
+  - [x] Inform the parent process of the decoding result.
 
-- [ ] Receiver Process:
-  - [ ] Continuously access random locations in the shared memory.
-  - [ ] Retrieve the encoded messages.
-  - [ ] Order the columns in the correct order.
-  - [ ] Drop columns that are already received.
-  - [ ] Determine when all columns are received.
-  - [ ] Attempt to decode the messages in the receiver.txt file.
-  - [ ] Inform the parent process of the decoding result.
+- [x] Receiver Process:
+  - [x] Continuously access random locations in the shared memory.
+  - [x] Retrieve the encoded messages.
+  - [x] Order the columns in the correct order.
+  - [x] Drop columns that are already received.
+  - [x] Determine when all columns are received.
+  - [x] Attempt to decode the messages in the receiver.txt file.
+  - [x] Inform the parent process of the decoding result.
 
-- [ ] Parent Process (Continued):
-  - [ ] Wait for the receiver process to complete and receive the decoding result.
-  - [ ] Determine if the receiver successfully decoded the messages before the master spy.
-  - [ ] Label the operation as successful or failed based on the result.
+- [x] Parent Process (Continued):
+  - [x] Wait for the receiver process to complete and receive the decoding result.
+  - [x] Determine if the receiver successfully decoded the messages before the master spy.
+  - [x] Label the operation as successful or failed based on the result.
 
-- [ ] Termination Condition:
-  - [ ] Monitor the number of failed decoding operations by the receiver process.
-  - [ ] Monitor the number of successful decoding operations by the receiver process.
-  - [ ] Terminate the simulation if either threshold is exceeded.
+- [x] Termination Condition:
+  - [x] Monitor the number of failed decoding operations by the receiver process.
+  - [x] Monitor the number of successful decoding operations by the receiver process.
+  - [x] Terminate the simulation if either threshold is exceeded.

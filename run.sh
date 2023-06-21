@@ -4,6 +4,8 @@
 # sed -i -e 's/\r$//' run.sh
 #run chmod 777 run.sh to make it executable
 
+cd src
+
 rm -f parent
 rm -f sender
 rm -f senderChild
